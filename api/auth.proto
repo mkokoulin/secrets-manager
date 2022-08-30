@@ -3,3 +3,63 @@ syntax = "proto3";
 package auth;
 
 option go_package = "/auth";
+
+message LoginRequest {
+    string Login = 1;
+    string Password = 2;
+}
+
+message LoginResponse {
+    enum LoginResult {
+        OK = 0;
+        Failed = 1;
+    }
+    LoginResult Result = 1;
+    string Token = 2;
+}
+
+message LogoutRequest {
+
+}
+
+message LogoutResponse {
+    enum LogoutResult {
+        OK = 0;
+        Failed = 1;
+    }
+    LogoutResult Result = 1;
+}
+
+message RegistrationRequiest {
+    string Login = 1;
+    string Password = 2;
+}
+
+message RegistrationResponse {
+    enum RegistrationResult {
+        OK = 0;
+        Failed = 1;
+    }
+    RegistrationResult Result = 1;
+}
+
+message CheckRequest {
+    string Token = 1;
+    string Login = 2;
+}
+
+message CheckResponse {
+    enum CheckResult {
+        OK = 0;
+        Failed = 1;
+    }
+    CheckResult Result = 1;
+    string Description = 2;
+}
+
+service Auth {
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc Logout(LogoutRequest) returns (LogoutResponse);
+    rpc Check(CheckRequest) returns (CheckResponse);
+    rpc Registration(RegistrationRequiest) returns (RegistrationResponse);
+}

@@ -61,6 +61,19 @@ func main() {
 		log.Error().Caller().Str("delete user", "").Err(err).Msg("")
 	}
 
+	user1 := &models.User{
+		ID: uuid.New(),
+		Login: "string4",
+		Password: "string4",
+		CreatedAt: time.Now(),
+		IsDeleted: false,
+	}
+
+	_, err = p.CheckUserPassword(context.Background(), *user1)
+	if err != nil {
+		log.Error().Caller().Str("check user password", "").Err(err).Msg("")
+	}
+
 
 	log.Log().Caller().Msg("Run server")
 

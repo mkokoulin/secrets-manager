@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package auth;
+package users;
 
-option go_package = "/auth";
+option go_package = "/users";
 
 message LoginRequest {
     string Login = 1;
@@ -48,8 +48,8 @@ message RefreshTokenResponse {
     string refresh_token = 3;
 }
 
-service Auth {
-    rpc Login(LoginRequest) returns (LoginResponse);
-    rpc Registration(RegistrationRequiest) returns (RegistrationResponse);
+service Users {
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+    rpc Registration(RegistrationRequiest) returns (RegistrationResponse) {}
     rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
 }

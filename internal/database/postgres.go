@@ -56,19 +56,19 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) (s
 	return user.ID.String(), nil
 }
 
-func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, login, password string) (bool, error) {
+func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, login, password string) (string, error) {
 	var result models.User
 
 	err := pd.conn.Model(&models.User{}).Where("login = ?", login).First(&result).Error
 	if err != nil {
-		return false, err
+		return result.Login, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(password)); err != nil {
-        return false, err
+        return result.Login, err
     }
 
-	return true, nil
+	return result.Login, nil
 }
 
 func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID uuid.UUID) error {	

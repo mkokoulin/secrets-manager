@@ -10,43 +10,46 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    enum LoginResult {
+    enum LoginStatus {
         OK = 0;
         Failed = 1;
     }
-    LoginResult Result = 1;
-    string Token = 2;
+    LoginStatus status = 1;
+    string access_token = 2;
+    string refresh_token = 3;
 }
 
 message RegistrationRequiest {
-    string Login = 1;
-    string Password = 2;
+    string login = 1;
+    string password = 2;
 }
 
 message RegistrationResponse {
-    enum RegistrationResult {
+    enum RegistrationStatus {
         OK = 0;
         Failed = 1;
     }
-    RegistrationResult Result = 1;
+    RegistrationStatus status = 1;
+    string access_token = 2;
+    string refresh_token = 3;
 }
 
-message CheckRequest {
-    string Token = 1;
-    string Login = 2;
+message RefreshTokenRequest {
+    string refresh_token = 1;
 }
 
-message CheckResponse {
-    enum CheckResult {
+message RefreshTokenResponse {
+    enum RefreshTokenStatus {
         OK = 0;
         Failed = 1;
     }
-    CheckResult Result = 1;
-    string Description = 2;
+    RefreshTokenStatus status = 1;
+    string access_token = 2;
+    string refresh_token = 3;
 }
 
 service Auth {
     rpc Login(LoginRequest) returns (LoginResponse);
-    rpc Check(CheckRequest) returns (CheckResponse);
     rpc Registration(RegistrationRequiest) returns (RegistrationResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -43,44 +44,7 @@ func main() {
 
 	conn.AutoMigrate(&models.User{})
 
-	p := database.NewPostgresDatabase(conn)
-
-	userID, err := p.CreateUser(context.Background(), models.User{
-		ID: uuid.New(),
-		Login: "string1",
-		Password: "string2",
-		CreatedAt: time.Now(),
-		IsDeleted: false,
-	})
-	if err != nil {
-		log.Error().Caller().Str("create user", "").Err(err).Msg("")
-	}
-
-	err = p.DeleteUser(context.Background(), userID)
-	if err != nil {
-		log.Error().Caller().Str("delete user", "").Err(err).Msg("")
-	}
-
-	user1 := &models.User{
-		ID: uuid.New(),
-		Login: "string4",
-		Password: "string4",
-		CreatedAt: time.Now(),
-		IsDeleted: false,
-	}
-
-	_, err = p.CheckUserPassword(context.Background(), *user1)
-	if err != nil {
-		log.Error().Caller().Str("check user password", "").Err(err).Msg("")
-	}
-
+	_ = database.NewPostgresDatabase(conn)
 
 	log.Log().Caller().Msg("Run server")
-
-	// token, err := auth.CreateToken("UserID", cfg.AccessTokenSecret, cfg.RefreshTokenSecret, cfg.AccessTokenLiveTimeMinutes, cfg.RefreshTokenLiveTimeDays)
-	// if err != nil {
-	// 	return
-	// }
-
-	// fmt.Println(token)
 }

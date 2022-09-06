@@ -18,18 +18,6 @@ message LoginResponse {
     string Token = 2;
 }
 
-message LogoutRequest {
-
-}
-
-message LogoutResponse {
-    enum LogoutResult {
-        OK = 0;
-        Failed = 1;
-    }
-    LogoutResult Result = 1;
-}
-
 message RegistrationRequiest {
     string Login = 1;
     string Password = 2;
@@ -59,7 +47,6 @@ message CheckResponse {
 
 service Auth {
     rpc Login(LoginRequest) returns (LoginResponse);
-    rpc Logout(LogoutRequest) returns (LogoutResponse);
     rpc Check(CheckRequest) returns (CheckResponse);
     rpc Registration(RegistrationRequiest) returns (RegistrationResponse);
 }

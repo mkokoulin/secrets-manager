@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
@@ -21,7 +20,7 @@ func NewPostgresDatabase(conn *gorm.DB) *PostgresDatabase {
 	}
 }
 
-func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) (string, error) {
+func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) error {
 	err := pd.conn.Transaction(func(tx *gorm.DB) error {
 		var exists bool
 
@@ -50,29 +49,29 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) (s
 	})
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return user.ID.String(), nil
+	return nil
 }
 
-func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, login, password string) (string, error) {
+func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.User) (string, error) {
 	var result models.User
 
-	err := pd.conn.Model(&models.User{}).Where("login = ?", login).First(&result).Error
+	err := pd.conn.Model(&models.User{}).Where("login = ?", user.Login).First(&result).Error
 	if err != nil {
 		return result.Login, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password)); err != nil {
         return result.Login, err
     }
 
 	return result.Login, nil
 }
 
-func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID uuid.UUID) error {	
-	err := pd.conn.Model(&models.User{}).Where("id=?", userID.String()).Update("is_deleted", true).Error
+func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {	
+	err := pd.conn.Model(&models.User{}).Where("id=?", userID).Update("is_deleted", true).Error
 	if err != nil {
 		return err
 	}

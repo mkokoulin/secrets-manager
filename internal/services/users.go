@@ -15,7 +15,7 @@ type UsersService struct {
 	RefreshTokenSecret         string
 }
 
-func NewUsersService(db UserRepoInterface, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int, accessTokenSecret, refreshTokenSecret string) *AuthService {
+func NewUsersService(db UserRepoInterface, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int, accessTokenSecret, refreshTokenSecret string) *UsersService {
 	return &UsersService{
 		db: db,
 		AccessTokenLiveTimeMinutes: accessTokenLiveTimeMinutes,

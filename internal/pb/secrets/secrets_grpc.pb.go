@@ -4,7 +4,7 @@
 // - protoc             v3.21.5
 // source: secrets.proto
 
-package pb
+package secrets
 
 import (
 	context "context"

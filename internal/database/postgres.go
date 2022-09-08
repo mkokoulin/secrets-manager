@@ -41,7 +41,7 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) er
 
 		user.Password = string(hash)
 
-		if err := tx.Create(user).Error; err != nil {
+		if err := tx.Create(&user).Error; err != nil {
 			return err
 		}
 

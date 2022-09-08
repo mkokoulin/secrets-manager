@@ -4,34 +4,39 @@ package users;
 
 option go_package = "/users";
 
-message LoginRequest {
+enum Status {
+    OK = 0;
+    Failed = 1;
+}
+
+message AuthUserRequest {
     string Login = 1;
     string Password = 2;
 }
 
-message LoginResponse {
-    enum LoginStatus {
-        OK = 0;
-        Failed = 1;
-    }
-    LoginStatus status = 1;
+message AuthUserResponse {
+    Status status = 1;
     string access_token = 2;
     string refresh_token = 3;
 }
 
-message RegistrationRequiest {
+message CreateUserRequiest {
     string login = 1;
     string password = 2;
 }
 
-message RegistrationResponse {
-    enum RegistrationStatus {
-        OK = 0;
-        Failed = 1;
-    }
-    RegistrationStatus status = 1;
+message CreateUserResponse {
+    Status status = 1;
     string access_token = 2;
     string refresh_token = 3;
+}
+
+message DeleteUserRequest {
+    string login = 1;
+}
+
+message DeleteUserResponse {
+    Status status = 1;
 }
 
 message RefreshTokenRequest {
@@ -39,17 +44,14 @@ message RefreshTokenRequest {
 }
 
 message RefreshTokenResponse {
-    enum RefreshTokenStatus {
-        OK = 0;
-        Failed = 1;
-    }
-    RefreshTokenStatus status = 1;
+    Status status = 1;
     string access_token = 2;
     string refresh_token = 3;
 }
 
 service Users {
-    rpc Login(LoginRequest) returns (LoginResponse) {}
-    rpc Registration(RegistrationRequiest) returns (RegistrationResponse) {}
+    rpc AuthUser(AuthUserRequest) returns (AuthUserResponse) {}
+    rpc CreateUser(CreateUserRequiest) returns (CreateUserResponse) {}
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
     rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
 }

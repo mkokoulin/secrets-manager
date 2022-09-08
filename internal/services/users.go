@@ -29,7 +29,7 @@ func (us *UsersService) CreateUser(ctx context.Context, user models.User) error 
 	return us.db.CreateUser(ctx, user)
 }
 
-func (us *UsersService) LoginUser(ctx context.Context, user models.User)(*auth.TokenDetails, error) {
+func (us *UsersService) AuthUser(ctx context.Context, user models.User)(*auth.TokenDetails, error) {
 	userID, err := us.db.CheckUserPassword(ctx, user)
 	if err != nil {
 		return nil, err

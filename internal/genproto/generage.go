@@ -1,3 +1,3 @@
 package genproto
 
-//go:generate protoc --go_out=. --go-grpc_out=. -I../../api ../../api/users.proto ../../api/secrets.proto
+//go:generate protoc --go_out=../pb --go-grpc_out=../pb -I../../api ../../api/users.proto ../../api/secrets.proto

@@ -4,18 +4,13 @@ package users;
 
 option go_package = "/users";
 
-enum Status {
-    OK = 0;
-    Failed = 1;
-}
-
 message AuthUserRequest {
     string Login = 1;
     string Password = 2;
 }
 
 message AuthUserResponse {
-    Status status = 1;
+    string status = 1;
     string access_token = 2;
     string refresh_token = 3;
 }
@@ -26,7 +21,7 @@ message CreateUserRequiest {
 }
 
 message CreateUserResponse {
-    Status status = 1;
+    string status = 1;
     string access_token = 2;
     string refresh_token = 3;
 }
@@ -36,7 +31,7 @@ message DeleteUserRequest {
 }
 
 message DeleteUserResponse {
-    Status status = 1;
+    string status = 1;
 }
 
 message RefreshTokenRequest {
@@ -44,7 +39,7 @@ message RefreshTokenRequest {
 }
 
 message RefreshTokenResponse {
-    Status status = 1;
+    string status = 1;
     string access_token = 2;
     string refresh_token = 3;
 }

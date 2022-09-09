@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
 	pb "github.com/mkokoulin/secrets-manager.git/internal/pb/users"
+	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 )
 
 type GRPCUsers struct {
@@ -29,19 +30,19 @@ func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) 
 	err := gu.userService.CreateUser(ctx, user)
 	if err != nil {
 		return &pb.CreateUserResponse{
-			Status: 1,
+			Status: customerrors.ParseError(err),
 		}, nil
 	}
 
 	token, err := gu.userService.AuthUser(ctx, user)
 	if err != nil {
 		return &pb.CreateUserResponse{
-			Status: 1,
+			Status: customerrors.ParseError(err),
 		}, nil
 	}
 
 	return &pb.CreateUserResponse{
-		Status: 0,
+		Status: "created",
 		AccessToken: token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, nil

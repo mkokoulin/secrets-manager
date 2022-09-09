@@ -1,13 +1,25 @@
 package errors
 
-import (
-	"fmt"
-	"net/http"
-)
+import "fmt"
 
+func NewCustomError(err error, statusCode string) error {
+	return &CustomError{
+		Err:        err,
+		StatusCode: statusCode,
+	}
+}
+
+func ParseError(err error) string {
+	switch e := err.(type) {
+	case *CustomError:
+		return e.StatusCode
+	default:
+		return "internal server error"
+	}
+}
 type CustomError struct {
 	Err        error
-	StatusCode int
+	StatusCode string
 }
 
 func (err *CustomError) Error() string {
@@ -16,13 +28,4 @@ func (err *CustomError) Error() string {
 
 func (err *CustomError) Unwrap() error {
 	return err.Err
-}
-
-func ParseError(err error) int {
-	switch e := err.(type) {
-	case *CustomError:
-		return e.StatusCode
-	default:
-		return http.StatusInternalServerError
-	}
 }

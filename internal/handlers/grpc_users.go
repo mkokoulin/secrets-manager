@@ -47,3 +47,23 @@ func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) 
 		RefreshToken: token.RefreshToken,
 	}, nil
 }
+
+func (gu *GRPCUsers) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb.AuthUserResponse, error) {
+	user := models.User {
+		Login: in.Login,
+		Password: in.Password,
+	}
+
+	token, err := gu.userService.AuthUser(ctx, user)
+	if err != nil {
+		return &pb.AuthUserResponse{
+			Status: customerrors.ParseError(err),
+		}, nil
+	}
+
+	return &pb.AuthUserResponse {
+		Status: "ok",
+		AccessToken: token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}, err
+}

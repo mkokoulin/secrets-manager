@@ -61,7 +61,7 @@ func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.U
 
 	err := pd.conn.Model(&models.User{}).Where("login = ?", user.Login).First(&result).Error
 	if err != nil {
-		return result.Login, customerrors.NewCustomError(err, "an unknown error occurred during getting a user")
+		return result.Login, customerrors.NewCustomError(err, "user not found")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password)); err != nil {

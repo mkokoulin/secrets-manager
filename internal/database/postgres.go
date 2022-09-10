@@ -59,7 +59,7 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) er
 func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.User) (string, error) {
 	var result models.User
 
-	err := pd.conn.Model(&models.User{}).Where("login = ?", user.Login).First(&result).Error
+	err := pd.conn.Model(&models.User{}).Where("login = ? AND is_deleted = false", user.Login).First(&result).Error
 	if err != nil {
 		return result.Login, customerrors.NewCustomError(err, "user not found")
 	}
@@ -72,7 +72,7 @@ func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.U
 }
 
 func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {	
-	err := pd.conn.Model(&models.User{}).Where("id=?", userID).Update("is_deleted", true).Error
+	err := pd.conn.Model(&models.User{}).Where("login=?", userID).Update("is_deleted", true).Error
 	if err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during deleting a user")
 	}

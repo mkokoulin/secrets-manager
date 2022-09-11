@@ -13,7 +13,7 @@ const (
 	DefaultLogLevel = "info"
 	DefaultAccessTokenSecret = "fgdghjafdgdfg"
 	DefaultRefreshTokenSecret = "ofdfgdgjhfghfghjghjsw"
-	DefaultAccessTokenLiveTimeMinutes = 30
+	DefaultAccessTokenLiveTimeMinutes = 10
 	DefaultRefreshTokenLiveTimeDays = 1
 )
 

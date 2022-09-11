@@ -80,3 +80,18 @@ func (gu *GRPCUsers) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest) (
 		Status: "ok",
 	}, nil
 }
+
+func (gu *GRPCUsers) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
+	token, err := gu.userService.RefreshToken(ctx, in.RefreshToken)
+	if err != nil {
+		return &pb.RefreshTokenResponse{
+			Status: customerrors.ParseError(err),
+		}, nil
+	}
+
+	return &pb.RefreshTokenResponse{
+		Status: "ok",
+		AccessToken: token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}, nil
+}

@@ -21,7 +21,7 @@ type TokenDetails struct {
 func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int) (*TokenDetails, error) {
 	td := &TokenDetails{
 		AtExpires: time.Now().Add(time.Minute * time.Duration(accessTokenLiveTimeMinutes)).Unix(),
-		RtExpires: time.Now().Add(time.Second - time.Duration(refreshTokenLiveTimeDays)).Unix(),
+		RtExpires: time.Now().Add(time.Hour * 24 * time.Duration(refreshTokenLiveTimeDays)).Unix(),
 	}
 
 	atClaims := jwt.MapClaims{

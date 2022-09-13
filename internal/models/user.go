@@ -18,7 +18,7 @@ type User struct {
 func (w User) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
 		ID string `json:"id"`
-		CreatedAt string `json:"processed_at"`
+		CreatedAt string `json:"created_at"`
 	}{
 		ID: w.ID.String(),
 		CreatedAt:   w.CreatedAt.Format(time.RFC3339),

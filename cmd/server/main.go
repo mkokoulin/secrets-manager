@@ -17,7 +17,8 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/internal/database"
 	"github.com/mkokoulin/secrets-manager.git/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
-	pb "github.com/mkokoulin/secrets-manager.git/internal/pb/users"
+	pbu "github.com/mkokoulin/secrets-manager.git/internal/pb/users"
+	pbs "github.com/mkokoulin/secrets-manager.git/internal/pb/secrets"
 	"github.com/mkokoulin/secrets-manager.git/internal/services"
 )
 
@@ -61,8 +62,11 @@ func main() {
 	repo := database.NewPostgresDatabase(conn)
 
 	userService := services.NewUsersService(repo, cfg.AccessTokenLiveTimeMinutes, cfg.RefreshTokenLiveTimeDays, cfg.AccessTokenSecret, cfg.RefreshTokenSecret)
+	secretsService := services.NewSecretsService(repo)
+
 
 	GRPCUsers := handlers.NewGRPCUsers(userService)
+	GRPCSecrets := handlers.NewGRPCSecrets(secretsService)
 
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -74,7 +78,8 @@ func main() {
 		}
 
 		grpcServer = grpc.NewServer()
-		pb.RegisterUsersServer(grpcServer, GRPCUsers)
+		pbu.RegisterUsersServer(grpcServer, GRPCUsers)
+		pbs.RegisterSecretsServer(grpcServer, GRPCSecrets)
 
 		log.Debug().Msgf("server listening at %v", lis.Addr())
 		return grpcServer.Serve(lis)

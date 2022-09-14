@@ -87,3 +87,19 @@ func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.Secret)
 	
 	return nil
 }
+
+func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]models.SecretData, error) {
+	return nil, nil
+}
+
+func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID string) (models.SecretData, error) {
+	return models.SecretData{}, nil
+}
+
+func (pd *PostgresDatabase) UpdateSecret(ctx context.Context, secretID, userID string, secret models.SecretData) error {
+	return nil
+}
+
+func (pd *PostgresDatabase) DeleteSecret(ctx context.Context, secretID, userID string) error {
+	return nil
+}

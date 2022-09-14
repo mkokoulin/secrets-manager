@@ -79,3 +79,11 @@ func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error
 
 	return nil
 }
+
+func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.Secret) error {
+	if err := pd.conn.Create(&secret).Error; err != nil {
+		return customerrors.NewCustomError(err, "an unknown error occurred during secret creation")
+	}
+	
+	return nil
+}

@@ -13,3 +13,11 @@ type UserServiceInterface interface {
 	DeleteUser(ctx context.Context, userID string) error
 	RefreshToken(ctx context.Context, refreshToken string) (*auth.TokenDetails, error)
 }
+
+type SecretServiceInterface interface {
+	AddSecret(ctx context.Context, secret models.Secret) error
+	GetSecrets(ctx context.Context, userID string) ([]models.SecretData, error)
+	GetSecret(ctx context.Context, userID string) (models.SecretData, error)
+	UpdateSecret(ctx context.Context, secretID, userID string) (models.SecretData, error)
+	DeleteSecret(ctx context.Context, secretID, userID string) error
+}

@@ -17,14 +17,14 @@ var (
 type Secret struct {
 	UserID string `json:"user_id"`
 	SecretID string 
-	Data SecretData `json:"secrets_data" gorm:"foreignKey:SecretID"`
+	Data SecretData `db:"secrets_data" gorm:"foreignKey:SecretID"`
 }
 
 type SecretData struct {
 	ID string `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Type string `json:"type"`
-	Value []byte `json:"value"`
+	Value map[string]string `json:"value" gorm:"type:text"`
 }
 
 func (s *SecretData) MarshalJSON() ([]byte, error) {
@@ -54,33 +54,33 @@ func (s *SecretData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aliasValue)
 }
 
-// func (s *SecretData) UnmarshalJSON(b []byte) error {
-// 	sd := &struct {
-// 		Value []byte `json:"value"`
-// 	}{}
+func (s *SecretData) UnmarshalJSON(b []byte) error {
+	sd := &struct {
+		Value []byte `json:"value"`
+	}{}
 
-// 	err := json.Unmarshal(b, &sd)
-// 	if err != nil {
-// 		return err
-// 	}
+	err := json.Unmarshal(b, &sd)
+	if err != nil {
+		return err
+	}
 
-// 	decryptValue, err := encryptor.Decrypt(key, nonce, sd.Value)
-// 	if err != nil {
-// 		return err
-// 	}
+	decryptValue, err := encryptor.Decrypt(key, nonce, sd.Value)
+	if err != nil {
+		return err
+	}
 
-// 	var value map[string]string
+	var value map[string]string
 
-// 	err = json.Unmarshal(decryptValue, &value)
-// 	if err != nil {
-// 		return err
-// 	}
+	err = json.Unmarshal(decryptValue, &value)
+	if err != nil {
+		return err
+	}
 
-// 	// s.Value = value
+	s.Value = value
 
 
-// 	return nil
-// }
+	return nil
+}
 
 func (s *SecretData) Validate() error {
 	switch s.Type {

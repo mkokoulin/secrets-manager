@@ -80,8 +80,8 @@ func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error
 	return nil
 }
 
-func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.Secret) error {
-	if err := pd.conn.Create(&secret).Error; err != nil {
+func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecretData) error {
+	if err := pd.conn.Table("secrets").Create(&secret).Error; err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during secret creation")
 	}
 	
@@ -92,8 +92,15 @@ func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]mo
 	return nil, nil
 }
 
-func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID string) (models.SecretData, error) {
-	return models.SecretData{}, nil
+func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID string) (models.RawSecretData, error) {
+	var result models.RawSecretData
+
+	err := pd.conn.Table("secrets").Where("id = ? AND user_id = ?", secretID, userID).First(&result).Error
+	if err != nil {
+		return models.RawSecretData{}, customerrors.NewCustomError(err, "user not found")
+	}
+
+	return result, nil
 }
 
 func (pd *PostgresDatabase) UpdateSecret(ctx context.Context, secretID, userID string, secret models.SecretData) error {

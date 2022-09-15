@@ -13,8 +13,8 @@ type UserRepoInterface interface {
 }
 
 type SecretsRepoInterface interface {
-	AddSecret(ctx context.Context, secret models.Secret) error
-	GetSecret(ctx context.Context, secretID, userID string) (models.SecretData, error)
+	AddSecret(ctx context.Context, secret models.RawSecretData) error
+	GetSecret(ctx context.Context, secretID, userID string) (models.RawSecretData, error)
 	GetSecrets(ctx context.Context, userID string) ([]models.SecretData, error)
 	UpdateSecret(ctx context.Context, secretID, userID string, secret models.SecretData) error
 	DeleteSecret(ctx context.Context, secretID, userID string) error

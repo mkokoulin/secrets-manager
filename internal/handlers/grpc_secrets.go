@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"context"
-	"time"
+	"encoding/json"
 
+	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
 	pb "github.com/mkokoulin/secrets-manager.git/internal/pb/secrets"
-	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 )
 
 type GRPCSecrets struct {
@@ -28,20 +28,47 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 
 	secret := models.Secret{
 		UserID: "",
-		SecretID: "",
 		Data: models.SecretData {
-			CreatedAt: time.Now(),
 			Type: in.Type,
 			Value: value,
 		},
 	}
 
-	err := gs.secretService.AddSecret(ctx, secret)
+	rawSecret, err := models.NewRawSecretData(secret)
+	if err != nil {
+		return nil, err
+	}
+
+	err = gs.secretService.AddSecret(ctx, *rawSecret)
 	if err != nil {
 		return nil, customerrors.NewCustomError(err, "")
 	}
 
 	return &pb.CreateSecretResponse {
+		Status: "ok",
+	}, nil
+}
+
+func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*pb.GetSecretResponse, error) {
+	rawSecret, err := gs.secretService.GetSecret(ctx, in.SecretId, "")
+	if err != nil {
+		return nil, customerrors.NewCustomError(err, "")
+	}
+
+	var d map[string]string
+
+	err = json.Unmarshal(rawSecret.Data, &d)
+	if err != nil {
+		return nil, customerrors.NewCustomError(err, "")
+	}
+
+	return &pb.GetSecretResponse {
+		Id: rawSecret.ID,
+		Type: rawSecret.Type,
+		Data: &pb.Data{
+			Title: ,
+			Value: "",
+		},
 		Status: "ok",
 	}, nil
 }

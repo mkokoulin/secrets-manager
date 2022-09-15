@@ -57,7 +57,8 @@ func main() {
 		log.Error().Caller().Str("database URI", cfg.DatabaseURI).Err(err).Msg("")
 	}
 
-	conn.AutoMigrate(&models.User{}, &models.Secret{})
+	conn.AutoMigrate(&models.User{})
+	conn.Table("secrets").AutoMigrate(&models.RawSecretData{})
 
 	repo := database.NewPostgresDatabase(conn)
 

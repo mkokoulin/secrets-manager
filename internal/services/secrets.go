@@ -2,9 +2,8 @@ package services
 
 import (
 	"context"
-	"encoding"
+	"encoding/json"
 
-	"github.com/mkokoulin/secrets-manager.git/internal/helpers/encryptor"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
 )
 
@@ -32,13 +31,27 @@ func (ss *SecretsService) GetSecret(ctx context.Context, secretID, userID string
 		return models.Secret{}, err
 	}
 
-	var result models.Secret
+	var secret models.Secret
 
-	encryptor.Decrypt(rawSecret.Data)
+	err = rawSecret.Decrypt()
+	if err != nil {
+		return models.Secret{}, err
+	}
 
+	var value map[string]string
 
+	err = json.Unmarshal(rawSecret.Data, &value)
+	if err != nil {
+		return models.Secret{}, err
+	}
 
-	return 
+	secret.Data.Value = value
+	secret.Data.CreatedAt = rawSecret.CreatedAt
+	secret.Data.Type = rawSecret.Type
+	secret.SecretID = rawSecret.ID
+	secret.UserID = rawSecret.UserID
+
+	return secret, nil
 }
 
 func (ss *SecretsService) UpdateSecret(ctx context.Context, secretID, userID string, secret models.SecretData) error {

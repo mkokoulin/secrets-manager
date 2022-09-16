@@ -56,19 +56,41 @@ func NewRawSecretData(secret Secret) (*RawSecretData, error) {
 		return nil, err
 	}
 
-	encryptValue, err := encryptor.Encrypt(key, nonce, value)
-	if err != nil {
-		return nil, err
-	}
-
 	data := RawSecretData{
 		ID: uuid.New().String(),
 		CreatedAt: time.Now(),
 		Type: secret.Data.Type,
-		Data: encryptValue,
+		Data: value,
+	}
+
+	err = data.Encrypt()
+	if err != nil {
+		return nil, err
 	}
 
 	return &data, nil
+}
+
+func (s *RawSecretData) Encrypt() error {
+	encryptValue, err := encryptor.Encrypt(key, nonce, s.Data)
+	if err != nil {
+		return err
+	}
+
+	s.Data = encryptValue
+
+	return nil
+}
+
+func (s *RawSecretData) Decrypt() error {
+	decryptValue, err := encryptor.Decrypt(key, nonce, s.Data)
+	if err != nil {
+		return err
+	}
+
+	s.Data = decryptValue
+
+	return nil
 }
 
 // func (s *SecretData) MarshalJSON() ([]byte, error) {

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 
 	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
@@ -21,16 +20,17 @@ func NewGRPCSecrets(secretService SecretServiceInterface) *GRPCSecrets {
 }
 
 func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequest) (*pb.CreateSecretResponse, error) {
-	value := map[string]string {
-		"title": in.Data.Title,
-		"value": in.Data.Value,
+	data := map[string]string {}
+
+	for _, v := range in.Data {
+		data[v.Title] = v.Value
 	}
 
 	secret := models.Secret{
 		UserID: "",
 		Data: models.SecretData {
 			Type: in.Type,
-			Value: value,
+			Value: data,
 		},
 	}
 
@@ -50,25 +50,26 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 }
 
 func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*pb.GetSecretResponse, error) {
-	rawSecret, err := gs.secretService.GetSecret(ctx, in.SecretId, "")
+	secret, err := gs.secretService.GetSecret(ctx, in.SecretId, "")
 	if err != nil {
 		return nil, customerrors.NewCustomError(err, "")
 	}
 
-	var d map[string]string
+	dates := []*pb.Data {}
 
-	err = json.Unmarshal(rawSecret.Data, &d)
-	if err != nil {
-		return nil, customerrors.NewCustomError(err, "")
+	for k, v := range secret.Data.Value {
+		data := pb.Data{}
+		
+		data.Title = k
+		data.Value = v
+
+		dates = append(dates, &data)
 	}
 
 	return &pb.GetSecretResponse {
-		Id: rawSecret.ID,
-		Type: rawSecret.Type,
-		Data: &pb.Data{
-			Title: ,
-			Value: "",
-		},
+		Id: secret.SecretID,
+		Type: secret.Data.Type,
 		Status: "ok",
+		Secret: dates,
 	}, nil
 }

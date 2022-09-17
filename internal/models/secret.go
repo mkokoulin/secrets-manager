@@ -25,6 +25,7 @@ type SecretData struct {
 	ID string `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Type string `json:"type"`
+	IsDeleted bool `json:"is_deleted"`
 	Value map[string]string `json:"value"`
 }
 
@@ -33,6 +34,7 @@ type RawSecretData struct {
 	CreatedAt time.Time `json:"created_at"`
 	UserID string `json:"user_id"`
 	Type string `json:"type"`
+	IsDeleted bool `json:"is_deleted"`
 	Data   []byte `json:"secret_data"`
 }
 
@@ -92,61 +94,6 @@ func (s *RawSecretData) Decrypt() error {
 
 	return nil
 }
-
-// func (s *SecretData) MarshalJSON() ([]byte, error) {
-// 	err := s.Validate()
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	value, err := json.Marshal(s.Value)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	encryptValue, err := encryptor.Encrypt(key, nonce, value)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	aliasValue := struct {
-// 		CreatedAt string `json:"created_at"`
-// 		Value []byte `json:"value"`
-// 	}{
-// 		CreatedAt:   s.CreatedAt.Format(time.RFC3339),
-// 		Value: encryptValue,
-// 	}
-	
-// 	return json.Marshal(aliasValue)
-// }
-
-// func (s *SecretData) UnmarshalJSON(b []byte) error {
-// 	sd := &struct {
-// 		Value []byte `json:"value"`
-// 	}{}
-
-// 	err := json.Unmarshal(b, &sd)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	decryptValue, err := encryptor.Decrypt(key, nonce, sd.Value)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	var value map[string]string
-
-// 	err = json.Unmarshal(decryptValue, &value)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// s.Value = value
-
-
-// 	return nil
-// }
 
 func (s *SecretData) Validate() error {
 	switch s.Type {

@@ -41,7 +41,7 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 
 	err = gs.secretService.AddSecret(ctx, *rawSecret)
 	if err != nil {
-		return nil, customerrors.NewCustomError(err, "")
+		return nil, customerrors.NewCustomError(err, "an error occurred while saving the secret")
 	}
 
 	return &pb.CreateSecretResponse {
@@ -52,24 +52,24 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*pb.GetSecretResponse, error) {
 	secret, err := gs.secretService.GetSecret(ctx, in.SecretId, "")
 	if err != nil {
-		return nil, customerrors.NewCustomError(err, "")
+		return nil, customerrors.NewCustomError(err, "an error occurred while receiving the secret")
 	}
 
-	dates := []*pb.Data {}
+	date := []*pb.Data {}
 
 	for k, v := range secret.Data.Value {
-		data := pb.Data{}
+		d := pb.Data{}
 		
-		data.Title = k
-		data.Value = v
+		d.Title = k
+		d.Value = v
 
-		dates = append(dates, &data)
+		date = append(date, &d)
 	}
 
 	return &pb.GetSecretResponse {
 		Id: secret.SecretID,
 		Type: secret.Data.Type,
 		Status: "ok",
-		Secret: dates,
+		Secret: date,
 	}, nil
 }

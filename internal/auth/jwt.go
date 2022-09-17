@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
-	"strings"
+ 	"strings"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -55,26 +56,36 @@ func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, ac
 	return td, nil
 }
 
-func ValidateToken(r *http.Request, accessTokenSecret string) (*jwt.Token, error) {
-	tokenString := ExtractToken(r)
-
+func ValidateToken(ctx context.Context, accessTokenSecret string) (*jwt.Token, error) {
+	tokenString := ExtractToken(ctx)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(accessTokenSecret), nil
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
-		return nil, errors.New("expired token")
-	}
-
 	return token, nil
 }
 
-func ExtractToken(r *http.Request) string {
-	bearerToken := r.Header.Get("Authorization")
-	strArr := strings.Split(bearerToken, " ")
+func TokenValid(ctx context.Context, accessSecret string) (string, error) {
+	token, err := ValidateToken(ctx, accessSecret)
+	if err != nil {
+		return "", err
+	}
+	if !token.Valid {
+		return "", err
+	}
+	mapClaims := token.Claims.(jwt.MapClaims)
+	t := mapClaims["user_id"].(string)
+	return t, nil
+}
+
+func ExtractToken(ctx context.Context) string {
+	token := metautils.ExtractIncoming(ctx).Get("authorization")
+	strArr := strings.Split(token, " ")
 	if len(strArr) == 2 {
 		return strArr[1]
 	}

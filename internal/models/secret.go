@@ -60,6 +60,7 @@ func NewRawSecretData(secret Secret) (*RawSecretData, error) {
 
 	data := RawSecretData{
 		ID: uuid.New().String(),
+		UserID: secret.UserID,
 		CreatedAt: time.Now(),
 		Type: secret.Data.Type,
 		Data: value,

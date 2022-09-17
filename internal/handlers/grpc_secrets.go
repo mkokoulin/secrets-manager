@@ -20,6 +20,13 @@ func NewGRPCSecrets(secretService SecretServiceInterface) *GRPCSecrets {
 }
 
 func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequest) (*pb.CreateSecretResponse, error) {
+	userID := getUserFromContext(ctx)
+	if userID == "" {
+		return &pb.CreateSecretResponse{
+			Status: "unauthorized",
+		}, nil
+	}
+
 	data := map[string]string {}
 
 	for _, v := range in.Data {
@@ -27,7 +34,7 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 	}
 
 	secret := models.Secret{
-		UserID: "",
+		UserID: userID,
 		Data: models.SecretData {
 			Type: in.Type,
 			Value: data,
@@ -50,7 +57,14 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 }
 
 func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*pb.GetSecretResponse, error) {
-	secret, err := gs.secretService.GetSecret(ctx, in.SecretId, "")
+	userID := getUserFromContext(ctx)
+	if userID == "" {
+		return &pb.GetSecretResponse{
+			Status: "unauthorized",
+		}, nil
+	}
+
+	secret, err := gs.secretService.GetSecret(ctx, in.SecretId, userID)
 	if err != nil {
 		return nil, customerrors.NewCustomError(err, "an error occurred while receiving the secret")
 	}
@@ -72,4 +86,16 @@ func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*
 		Status: "ok",
 		Secret: date,
 	}, nil
+}
+
+func getUserFromContext(ctx context.Context) string {
+	userID := ctx.Value("userID")
+	if userID != nil {
+		if str, ok := userID.(string); ok {
+			return str
+		} else {
+			return ""
+		}
+	}
+	return ""
 }

@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 
 	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 
 	"github.com/mkokoulin/secrets-manager.git/internal/middleware"
 	"github.com/mkokoulin/secrets-manager.git/internal/config"
@@ -65,28 +64,26 @@ func main() {
 	repo := database.NewPostgresDatabase(conn)
 
 	userService := services.NewUsersService(repo, cfg.AccessTokenLiveTimeMinutes, cfg.RefreshTokenLiveTimeDays, cfg.AccessTokenSecret, cfg.RefreshTokenSecret)
-	secretsService := services.NewSecretsService(repo)
-
-
 	GRPCUsers := handlers.NewGRPCUsers(userService)
+	
+	secretsService := services.NewSecretsService(repo)
 	GRPCSecrets := handlers.NewGRPCSecrets(secretsService)
 
 	JWTMiddleware := middleware.NewJWTMiddleware(cfg.AccessTokenSecret)
 
 	GRPCServer := services.NewGrpcServer(
+		services.WithServerConfig(cfg),
 		services.WithServices(GRPCUsers, GRPCSecrets),
 		services.WithStreamInterceptors(
 			grpcauth.StreamServerInterceptor(JWTMiddleware.CheckAuth),
-			grpcrecovery.StreamServerInterceptor(),
 		),
 		services.WithUnaryInterceptors(
 			grpcauth.UnaryServerInterceptor(JWTMiddleware.CheckAuth),
-			grpcrecovery.UnaryServerInterceptor(),
 		),
 	)
 
 	g.Go(func() error {
-		GRPCServer.Start(cancel)
+		err := GRPCServer.Start(cancel)
 		if err != nil {
 			log.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
 			return err
@@ -95,31 +92,6 @@ func main() {
 		return nil
 	})
 
-
-	// g.Go(func() error {
-	// 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPCPort))
-	// 	if err != nil {
-	// 		log.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
-	// 		return err
-	// 	}
-
-	// 	grpcServer = grpc.NewServer(
-	// 		grpc.UnaryInterceptor(
-	// 			grpc_middleware.ChainUnaryServer( 
-	// 				middleware.JWTMiddleware(ctx, cfg.AccessTokenSecret),
-	// 			),
-	// 		),
-	// 		grpc.StreamInterceptor(
-	// 			middleware.JWTMiddleware(ctx, cfg.AccessTokenSecret),
-	// 		),
-	// 	)
-	// 	pbu.RegisterUsersServer(grpcServer, GRPCUsers)
-	// 	pbs.RegisterSecretsServer(grpcServer, GRPCSecrets)
-
-	// 	log.Debug().Msgf("server listening at %v", lis.Addr())
-	// 	return grpcServer.Serve(lis)
-	// })
-
 	select {
 	case <-interrupt:
 		log.Debug().Msgf("stop server")
@@ -127,12 +99,8 @@ func main() {
 	case <-ctx.Done():
 		// GRPCServer.Stop()
 
-		// log.Log().Caller().Msg("Stop server")
+		log.Log().Caller().Msg("Stop server")
 		break
-	}
-
-	if grpcServer != nil {
-		grpcServer.GracefulStop()
 	}
 
 	err = g.Wait()

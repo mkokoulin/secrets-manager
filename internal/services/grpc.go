@@ -17,7 +17,7 @@ type Service interface {
 }
 
 type GRPCServer struct {
-	cfg config.Config
+	cfg *config.Config
 	server *grpc.Server
 	logger             *zerolog.Logger
 	services           []Service
@@ -35,6 +35,12 @@ func NewGrpcServer(opts ...GrpcServerOption) *GRPCServer {
 	}
 
 	return s
+}
+
+func WithServerConfig(c *config.Config) GrpcServerOption {
+	return func(server *GRPCServer) {
+		server.cfg = c
+	}
 }
 
 func WithStreamInterceptors(in ...grpc.StreamServerInterceptor) GrpcServerOption {
@@ -79,13 +85,13 @@ func (s *GRPCServer) Start(cancel context.CancelFunc) error {
 
 	s.RegisterServices(s.services...)
 
-	err = s.server.Serve(lis)
-	if err != nil {
-		s.logger.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
-		cancel()
-	}
-
-	s.logger.Log().Caller().Msgf("gRPC server is running on %s port", s.cfg.GRPCPort)
+	go func() {
+		err = s.server.Serve(lis)
+		if err != nil {
+			s.logger.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
+			cancel()
+		}
+	}()
 
 	return nil
 }

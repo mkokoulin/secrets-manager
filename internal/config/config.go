@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultDatabaseURI = "host=localhost user=postgres password=postgres dbname=postgres port=5455 sslmode=disable"
+	DefaultDatabaseURI = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
 	DefaultGRPCPort = 5001
 	DefaultLogLevel = "info"
 	DefaultAccessTokenSecret = "fgdghjafdgdfg"

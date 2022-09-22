@@ -6,6 +6,7 @@ import (
 	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
 	pb "github.com/mkokoulin/secrets-manager.git/internal/pb/secrets"
+	"google.golang.org/grpc"
 )
 
 type GRPCSecrets struct {
@@ -17,6 +18,10 @@ func NewGRPCSecrets(secretService SecretServiceInterface) *GRPCSecrets {
 	return &GRPCSecrets {
 		secretService: secretService,
 	}
+}
+
+func (gs *GRPCSecrets) RegisterService(r grpc.ServiceRegistrar) {
+	pb.RegisterSecretsServer(r, gs)
 }
 
 func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequest) (*pb.CreateSecretResponse, error) {

@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -13,16 +11,14 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 
-	"github.com/mkokoulin/secrets-manager.git/internal/auth"
+	"github.com/mkokoulin/secrets-manager.git/internal/middleware"
 	"github.com/mkokoulin/secrets-manager.git/internal/config"
 	"github.com/mkokoulin/secrets-manager.git/internal/database"
 	"github.com/mkokoulin/secrets-manager.git/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
-	pbs "github.com/mkokoulin/secrets-manager.git/internal/pb/secrets"
-	pbu "github.com/mkokoulin/secrets-manager.git/internal/pb/users"
 	"github.com/mkokoulin/secrets-manager.git/internal/services"
 )
 
@@ -75,37 +71,63 @@ func main() {
 	GRPCUsers := handlers.NewGRPCUsers(userService)
 	GRPCSecrets := handlers.NewGRPCSecrets(secretsService)
 
+	JWTMiddleware := middleware.NewJWTMiddleware(cfg.AccessTokenSecret)
+
+	GRPCServer := services.NewGrpcServer(
+		services.WithServices(GRPCUsers, GRPCSecrets),
+		services.WithStreamInterceptors(
+			grpcauth.StreamServerInterceptor(JWTMiddleware.CheckAuth),
+			grpcrecovery.StreamServerInterceptor(),
+		),
+		services.WithUnaryInterceptors(
+			grpcauth.UnaryServerInterceptor(JWTMiddleware.CheckAuth),
+			grpcrecovery.UnaryServerInterceptor(),
+		),
+	)
+
 	g.Go(func() error {
-		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPCPort))
+		GRPCServer.Start(cancel)
 		if err != nil {
 			log.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
 			return err
 		}
-
-		grpcServer = grpc.NewServer(grpc.UnaryInterceptor(
-			grpc_middleware.ChainUnaryServer( 
-				grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
-					userID, err := auth.TokenValid(ctx, cfg.AccessTokenSecret)
-					if err != nil {
-						userID = ""
-					}
-					newCtx := context.WithValue(ctx, "userID", userID)
-						return newCtx, nil
-				}),
-			)),
-		)
-		pbu.RegisterUsersServer(grpcServer, GRPCUsers)
-		pbs.RegisterSecretsServer(grpcServer, GRPCSecrets)
-
-		log.Debug().Msgf("server listening at %v", lis.Addr())
-		return grpcServer.Serve(lis)
+		
+		return nil
 	})
+
+
+	// g.Go(func() error {
+	// 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPCPort))
+	// 	if err != nil {
+	// 		log.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
+	// 		return err
+	// 	}
+
+	// 	grpcServer = grpc.NewServer(
+	// 		grpc.UnaryInterceptor(
+	// 			grpc_middleware.ChainUnaryServer( 
+	// 				middleware.JWTMiddleware(ctx, cfg.AccessTokenSecret),
+	// 			),
+	// 		),
+	// 		grpc.StreamInterceptor(
+	// 			middleware.JWTMiddleware(ctx, cfg.AccessTokenSecret),
+	// 		),
+	// 	)
+	// 	pbu.RegisterUsersServer(grpcServer, GRPCUsers)
+	// 	pbs.RegisterSecretsServer(grpcServer, GRPCSecrets)
+
+	// 	log.Debug().Msgf("server listening at %v", lis.Addr())
+	// 	return grpcServer.Serve(lis)
+	// })
 
 	select {
 	case <-interrupt:
 		log.Debug().Msgf("stop server")
 		break
 	case <-ctx.Done():
+		// GRPCServer.Stop()
+
+		// log.Log().Caller().Msg("Stop server")
 		break
 	}
 

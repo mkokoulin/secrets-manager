@@ -47,7 +47,8 @@ func (ss *SecretsService) GetSecret(ctx context.Context, secretID, userID string
 
 	secret.Data.Value = value
 	secret.Data.CreatedAt = rawSecret.CreatedAt
-	secret.Data.Type = rawSecret.Type
+		secret.Data.Type = rawSecret.Type
+
 	secret.SecretID = rawSecret.ID
 	secret.UserID = rawSecret.UserID
 

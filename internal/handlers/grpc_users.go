@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	
+	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
 	"github.com/mkokoulin/secrets-manager.git/internal/models"
 	pb "github.com/mkokoulin/secrets-manager.git/internal/pb/users"
-	customerrors "github.com/mkokoulin/secrets-manager.git/internal/errors"
+	"google.golang.org/grpc"
 )
 
 type GRPCUsers struct {
@@ -18,6 +20,10 @@ func NewGRPCUsers(userService UserServiceInterface) *GRPCUsers {
 	return &GRPCUsers {
 		userService: userService,
 	}
+}
+
+func (gu *GRPCUsers) RegisterService(r grpc.ServiceRegistrar) {
+	pb.RegisterUsersServer(r, gu)
 }
 
 func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) (*pb.CreateUserResponse, error) {

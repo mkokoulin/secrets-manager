@@ -93,6 +93,24 @@ func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*
 	}, nil
 }
 
+func (gs *GRPCSecrets) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest)(*pb.DeleteSecretResponse, error) {
+	userID := getUserFromContext(ctx)
+	if userID == "" {
+		return &pb.DeleteSecretResponse{
+			Status: "unauthorized",
+		}, nil
+	}
+
+	err := gs.secretService.DeleteSecret(ctx, in.SecretId, userID)
+	if err != nil {
+		return nil, customerrors.NewCustomError(err, "an error occurred while deleting the secret")
+	}
+
+	return &pb.DeleteSecretResponse {
+		Status: "ok",
+	}, nil
+}
+
 func getUserFromContext(ctx context.Context) string {
 	userID := ctx.Value("userID")
 	if userID != nil {

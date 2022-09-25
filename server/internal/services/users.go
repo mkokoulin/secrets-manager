@@ -31,6 +31,7 @@ func (us *UsersService) CreateUser(ctx context.Context, user models.User) error 
 
 func (us *UsersService) AuthUser(ctx context.Context, user models.User)(*auth.TokenDetails, error) {
 	userID, err := us.db.CheckUserPassword(ctx, user)
+	
 	if err != nil {
 		return nil, err
 	}

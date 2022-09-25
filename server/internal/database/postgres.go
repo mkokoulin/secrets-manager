@@ -1,3 +1,4 @@
+// Package database includes methods working with database
 package database
 
 import (
@@ -21,6 +22,7 @@ func NewPostgresDatabase(conn *gorm.DB) *PostgresDatabase {
 	}
 }
 
+// CreateUser method for creating a user
 func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) error {
 	err := pd.conn.Transaction(func(tx *gorm.DB) error {
 		var exists bool
@@ -56,6 +58,7 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) er
 	return nil
 }
 
+// CheckUserPassword method for checking a user password
 func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.User) (string, error) {
 	var result models.User
 
@@ -71,6 +74,7 @@ func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.U
 	return result.Login, nil
 }
 
+// DeleteUser method for deleting a user
 func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {	
 	err := pd.conn.Model(&models.User{}).Where("login=?", userID).Update("is_deleted", true).Error
 	if err != nil {
@@ -80,6 +84,7 @@ func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error
 	return nil
 }
 
+// AddSecret method for adding a user secret
 func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecretData) error {
 	if err := pd.conn.Table("secrets").Create(&secret).Error; err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during secret creation")
@@ -88,10 +93,7 @@ func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecr
 	return nil
 }
 
-func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]models.SecretData, error) {
-	return nil, nil
-}
-
+// GetSecret method for getting a user secret
 func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID string) (models.RawSecretData, error) {
 	var result models.RawSecretData
 
@@ -101,12 +103,4 @@ func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID stri
 	}
 
 	return result, nil
-}
-
-func (pd *PostgresDatabase) UpdateSecret(ctx context.Context, secretID, userID string, secret models.SecretData) error {
-	return nil
-}
-
-func (pd *PostgresDatabase) DeleteSecret(ctx context.Context, secretID, userID string) error {
-	return nil
 }

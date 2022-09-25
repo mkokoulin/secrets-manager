@@ -1,3 +1,4 @@
+// Package lunh includes function for checking the card data
 package lunh
 
 func ValidLuhnNumber(number int) bool {

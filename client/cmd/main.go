@@ -1,3 +1,4 @@
+// Package main entrance file for client application 
 package main
 
 import (

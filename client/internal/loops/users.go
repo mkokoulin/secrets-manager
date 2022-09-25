@@ -1,3 +1,4 @@
+// Package loops for storing interaction cycles
 package loops
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/client/internal/services"
 )
 
+// NewUserLoop function creates loop structure intersaction with user
 func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 	return &UserLoop{
 		address:     address,
@@ -16,6 +18,7 @@ func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 	}
 }
 
+// UserLoop structure for loop interaction with user
 type UserLoop struct {
 	address       string
 	userHandler   *handlers.UserHandler
@@ -61,6 +64,7 @@ func (ul *UserLoop) MainLoop(ctx context.Context) {
 	}
 }
 
+// MainLoop methods run main loop
 func (ul *UserLoop) clientLoop(ctx context.Context, accessToken string, refreshToken string) {
 	secretClient := services.NewSecretClient(ul.address, accessToken, refreshToken,
 		ul.userHandler.UserClient)

@@ -1,3 +1,4 @@
+// Package models includes models for the server
 package models
 
 import (
@@ -21,12 +22,14 @@ var (
 	nonce = []byte{161, 154, 38, 17, 9, 137, 119, 105, 204, 99, 67, 14}
 )
 
+// Secret secret storage structure
 type Secret struct {
 	UserID string `json:"user_id"`
 	SecretID string 
 	Data SecretData `db:"secrets_data" gorm:"foreignKey:SecretID"`
 }
 
+// SecretData structure for storing secret data
 type SecretData struct {
 	ID string `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -35,6 +38,7 @@ type SecretData struct {
 	Value map[string]string `json:"value"`
 }
 
+// RawSecretData structure of the encrypted secret
 type RawSecretData struct {
 	ID string `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -53,6 +57,7 @@ func (rsd *RawSecretData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aliasValue)
 }
 
+// NewRawSecretData function for creating a new encrypted secret object
 func NewRawSecretData(secret Secret) (*RawSecretData, error) {
 	err := secret.Data.Validate()
 	if err != nil {
@@ -80,6 +85,7 @@ func NewRawSecretData(secret Secret) (*RawSecretData, error) {
 	return &data, nil
 }
 
+// Encrypt secret encryption function
 func (rsd *RawSecretData) Encrypt() error {
 	encryptValue, err := encryptor.Encrypt(key, nonce, rsd.Data)
 	if err != nil {
@@ -91,6 +97,7 @@ func (rsd *RawSecretData) Encrypt() error {
 	return nil
 }
 
+// Decrypt function of decrypting the secret into the usual secret structure
 func (rsd *RawSecretData) Decrypt() error {
 	decryptValue, err := encryptor.Decrypt(key, nonce, rsd.Data)
 	if err != nil {
@@ -102,6 +109,7 @@ func (rsd *RawSecretData) Decrypt() error {
 	return nil
 }
 
+// Validate secret data validation function
 func (s *SecretData) Validate() error {
 	switch s.Type {
 	case "binary":

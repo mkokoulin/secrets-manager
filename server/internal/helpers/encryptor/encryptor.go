@@ -9,6 +9,7 @@ import (
 
 )
 
+// Encrypt function for encrypting information
 func Encrypt(key, nonce,  data []byte) ([]byte, error) {
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {
@@ -25,6 +26,7 @@ func Encrypt(key, nonce,  data []byte) ([]byte, error) {
 	return encryptData, nil
 }
 
+// Decrypt function for decrypting information
 func Decrypt(key, nonce,  data []byte) ([]byte, error) {
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {

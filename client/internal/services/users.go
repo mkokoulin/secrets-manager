@@ -1,3 +1,4 @@
+// Package services includes wrappers for pd files and client
 package services
 
 import (
@@ -9,21 +10,25 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// UserClient structure for user client
 type UserClient struct {
 	address string
 }
 
+// NewUserClient function for creates new user client
 func NewUserClient(address string) *UserClient {
 	return &UserClient{
 		address: address,
 	}
 }
 
+// GRPCUser structure for GRPC user
 type GRPCUser struct {
 	pb.UsersClient
 	closeFunc func() error
 }
 
+// Register methods for registration new users
 func (u *UserClient) Register(ctx context.Context, login string, password string) (string, string, error) {
 	client, err := u.getConn()
 	if err != nil {
@@ -45,6 +50,7 @@ func (u *UserClient) Register(ctx context.Context, login string, password string
 	return "", "", errors.New(response.Status)
 }
 
+// Auth methods for users authentication
 func (u *UserClient) Auth(ctx context.Context, login string, password string) (string, string, error) {
 	client, err := u.getConn()
 	if err != nil {
@@ -64,6 +70,7 @@ func (u *UserClient) Auth(ctx context.Context, login string, password string) (s
 	return "", "", errors.New(response.Status)
 }
 
+// Refresh method for refreshing auth token
 func (u *UserClient) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
 	client, err := u.getConn()
 	if err != nil {

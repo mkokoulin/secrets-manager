@@ -1,3 +1,4 @@
+// Package models includes models for the server
 package models
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// User storage structure
 type User struct {
 	ID uuid.UUID `json:"id"`
 	Login string `json:"login"`

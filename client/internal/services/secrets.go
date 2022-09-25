@@ -13,12 +13,13 @@ import (
 	pb "github.com/mkokoulin/secrets-manager.git/client/internal/pb/secrets"
 )
 
+// GRPCClient structure for the GRPC client
 type GRPCClient struct {
 	pb.SecretsClient
 	closeFunc func() error
 }
 
-// SecretClient структура клиента для работы с секретами
+// SecretClient client structure for working with a secret
 type SecretClient struct {
 	address      string
 	accessToken  string
@@ -26,6 +27,7 @@ type SecretClient struct {
 	userClient   *UserClient
 }
 
+// NewSecretClient function for creates new secret client
 func NewSecretClient(address string, access string, refresh string, userClient *UserClient) *SecretClient {
 	return &SecretClient{
 		address:      address,
@@ -35,6 +37,7 @@ func NewSecretClient(address string, access string, refresh string, userClient *
 	}
 }
 
+// GetSecret method for getting a secret
 func (c *SecretClient) GetSecret(ctx context.Context) (models.Secret, error) {
 	client, err := c.getConn()
 	if err != nil {
@@ -74,6 +77,7 @@ func (c *SecretClient) GetSecret(ctx context.Context) (models.Secret, error) {
 	return result, nil
 }
 
+// CreateSecret method for creating a secret
 func (c *SecretClient) CreateSecret(ctx context.Context, secret models.Secret) error {
 	client, err := c.getConn()
 	if err != nil {

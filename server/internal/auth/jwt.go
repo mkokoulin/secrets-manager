@@ -1,3 +1,4 @@
+// Package auth includes everething for working with JWT 
 package auth
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// TokenDetails structure for working with JWT auth
 type TokenDetails struct {
 	AccessToken  string
 	RefreshToken string
@@ -19,6 +21,7 @@ type TokenDetails struct {
 	RtExpires    int64
 }
 
+// CreateToken method for createing JWT token
 func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int) (*TokenDetails, error) {
 	td := &TokenDetails{
 		AtExpires: time.Now().Add(time.Minute * time.Duration(accessTokenLiveTimeMinutes)).Unix(),
@@ -56,7 +59,7 @@ func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, ac
 	return td, nil
 }
 
-func ValidateToken(ctx context.Context, accessTokenSecret string) (*jwt.Token, error) {
+func validateToken(ctx context.Context, accessTokenSecret string) (*jwt.Token, error) {
 	tokenString := ExtractToken(ctx)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -70,8 +73,9 @@ func ValidateToken(ctx context.Context, accessTokenSecret string) (*jwt.Token, e
 	return token, nil
 }
 
+// TokenValid method for checking the JWT token
 func TokenValid(ctx context.Context, accessSecret string) (string, error) {
-	token, err := ValidateToken(ctx, accessSecret)
+	token, err := validateToken(ctx, accessSecret)
 	if err != nil {
 		return "", err
 	}
@@ -83,6 +87,7 @@ func TokenValid(ctx context.Context, accessSecret string) (string, error) {
 	return t, nil
 }
 
+// ExtractToken method for getting token from context
 func ExtractToken(ctx context.Context) string {
 	token := metautils.ExtractIncoming(ctx).Get("authorization")
 	strArr := strings.Split(token, " ")
@@ -92,6 +97,7 @@ func ExtractToken(ctx context.Context) string {
 	return ""
 }
 
+// RefreshToken method for refreshing the JWT token
 func RefreshToken(refreshToken, refreshTokenSecret string, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int) (*TokenDetails, error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

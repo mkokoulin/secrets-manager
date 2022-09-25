@@ -1,3 +1,4 @@
+// Package main entrance file for server application 
 package main
 
 import (
@@ -97,7 +98,7 @@ func main() {
 		log.Debug().Msgf("stop server")
 		break
 	case <-ctx.Done():
-		// GRPCServer.Stop()
+		GRPCServer.Stop()
 
 		log.Log().Caller().Msg("Stop server")
 		break

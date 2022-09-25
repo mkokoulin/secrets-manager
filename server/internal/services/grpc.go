@@ -1,3 +1,4 @@
+// Package services contains works with GRPC
 package services
 
 import (

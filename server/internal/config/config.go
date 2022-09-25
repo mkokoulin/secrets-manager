@@ -1,3 +1,4 @@
+// Package config incudes server configuration
 package config
 
 import (

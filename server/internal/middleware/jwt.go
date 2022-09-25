@@ -1,3 +1,4 @@
+// Package middleware includes functions for additional request processing
 package middleware
 
 import (
@@ -16,6 +17,7 @@ func NewJWTMiddleware(accessTokenSecret string) *JWTMiddleware {
 	}
 }
 
+// CheckAuth method for checking auth
 func (jwt *JWTMiddleware) CheckAuth(ctx context.Context) (context.Context, error) {
 	userID, err := auth.TokenValid(ctx, jwt.AccessTokenSecret)
 	if err != nil {

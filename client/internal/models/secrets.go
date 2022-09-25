@@ -1,3 +1,4 @@
+// Package models includes client models
 package models
 
 import (

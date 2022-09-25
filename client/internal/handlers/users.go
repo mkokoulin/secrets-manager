@@ -1,3 +1,4 @@
+// Package handlers includes methods for handling users cases
 package handlers
 
 import (
@@ -7,19 +8,19 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/client/internal/services"
 )
 
-// NewUserHandler функция для создания нового обработчика пользователей
+// NewUserHandler function for creates new user handler
 func NewUserHandler(userClient *services.UserClient) *UserHandler {
 	return &UserHandler{
 		UserClient: userClient,
 	}
 }
 
-// UserHandler струкутра обработчика пользователей
+// UserHandler structure for handling users
 type UserHandler struct {
 	UserClient *services.UserClient
 }
 
-// RegisterUser функция регистрации пользователей
+// RegisterUser method for registering a user
 func (uh *UserHandler) RegisterUser(ctx context.Context) (string, string, error) {
 
 	login, password, err := uh.getUserCredentials(ctx)
@@ -29,7 +30,7 @@ func (uh *UserHandler) RegisterUser(ctx context.Context) (string, string, error)
 	return uh.UserClient.Register(ctx, login, password)
 }
 
-// AuthUser функция авторизации пользователя
+// AuthUser method for auth a user
 func (uh *UserHandler) AuthUser(ctx context.Context) (string, string, error) {
 	login, password, err := uh.getUserCredentials(ctx)
 	if err != nil {

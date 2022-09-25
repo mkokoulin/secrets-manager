@@ -9,7 +9,6 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/client/internal/services"
 )
 
-// NewUserLoop функция создания структуры цикла взаимодейтсвия с пользователями
 func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 	return &UserLoop{
 		address:     address,
@@ -17,14 +16,12 @@ func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 	}
 }
 
-// UserLoop структра цикла взаимодействия с пользователем
 type UserLoop struct {
 	address       string
 	userHandler   *handlers.UserHandler
 	secretHandler *handlers.SecretHandler
 }
 
-// MainLoop функция запуска основного цикла
 func (ul *UserLoop) MainLoop(ctx context.Context) {
 	for {
 		fmt.Println("To login input l, to register input r, to quit input q:")
@@ -35,7 +32,7 @@ func (ul *UserLoop) MainLoop(ctx context.Context) {
 		}
 		switch {
 		case input == "r":
-			accessToken, refreshToken, err = ul.userHandler.RegisterUser(ctx)
+			accessToken, refreshToken, err := ul.userHandler.RegisterUser(ctx)
 			if err != nil {
 				fmt.Printf("Error with registration: %v \n", err)
 				continue
@@ -46,7 +43,7 @@ func (ul *UserLoop) MainLoop(ctx context.Context) {
 				fmt.Println("Problem with register")
 			}
 		case input == "l":
-			accessToken, refreshToken, err = ul.userHandler.AuthUser(ctx)
+			accessToken, refreshToken, err := ul.userHandler.AuthUser(ctx)
 			if err != nil {
 				fmt.Println("Wrong login or password")
 				continue
@@ -84,17 +81,12 @@ func (ul *UserLoop) clientLoop(ctx context.Context, accessToken string, refreshT
 				fmt.Println("Error while get a secret ", err)
 				return
 			}
-			if len(result) == 0 {
-				fmt.Println("You have 0 secrets yet")
-			} else {
-				for _, r := range result {
-					fmt.Println("--------------------------")
-					fmt.Printf("Secret ID: %v \nSecret type: %v \nSecret Meta: %v \n", r.ID, r.Type, r.MetaData)
-					fmt.Println("Data:")
-					for k, v := range r.UsefulData {
-						fmt.Println(" ", k, ": ", v)
-					}
-				}
+			 
+			fmt.Println("--------------------------")
+			fmt.Printf("Secret ID: %v \nSecret type: %v \n", result.ID, result.Type)
+			fmt.Println("Data:")
+			for k, v := range result.Value {
+				fmt.Println(" ", k, ": ", v)
 			}
 			fmt.Println()
 		case input == "q":

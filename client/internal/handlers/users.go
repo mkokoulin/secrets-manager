@@ -22,7 +22,6 @@ type UserHandler struct {
 
 // RegisterUser method for registering a user
 func (uh *UserHandler) RegisterUser(ctx context.Context) (string, string, error) {
-
 	login, password, err := uh.getUserCredentials(ctx)
 	if err != nil {
 		return "", "", err

@@ -104,3 +104,12 @@ func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID stri
 
 	return result, nil
 }
+
+func (pd *PostgresDatabase) DeleteSecret(ctx context.Context, secretID, userID string) error {
+	err := pd.conn.Table("secrets").Delete("id = ? AND user_id = ?", secretID, userID).Error
+	if err != nil {
+		return customerrors.NewCustomError(err, "secrets not found")
+	}
+
+	return nil
+}

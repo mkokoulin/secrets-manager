@@ -54,3 +54,13 @@ func (ss *SecretsService) GetSecret(ctx context.Context, secretID, userID string
 
 	return secret, nil
 }
+
+// DeleteSecret method of deleting a secret of the user
+func (ss *SecretsService) DeleteSecret(ctx context.Context, secretID, userID string) error {
+	err := ss.db.DeleteSecret(ctx, secretID, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

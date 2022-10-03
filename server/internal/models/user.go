@@ -17,13 +17,13 @@ type User struct {
 	IsDeleted bool `json:"is_deleted"`
 }
 
-func (w User) MarshalJSON() ([]byte, error) {
+func (u User) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
 		ID string `json:"id"`
 		CreatedAt string `json:"created_at"`
 	}{
-		ID: w.ID.String(),
-		CreatedAt:   w.CreatedAt.Format(time.RFC3339),
+		ID: u.ID.String(),
+		CreatedAt:   u.CreatedAt.Format(time.RFC3339),
 	}
 	return json.Marshal(aliasValue)
 }

@@ -94,6 +94,51 @@ func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*
 	}, nil
 }
 
+func (gs *GRPCSecrets) GetSecrets(ctx context.Context, in *pb.GetSecretsRequest)(*pb.GetSecretsResponse, error) {
+	userID := getUserFromContext(ctx)
+	if userID == "" {
+		return &pb.GetSecretsResponse{
+			Status: "unauthorized",
+		}, nil
+	}
+
+	secrets, err := gs.secretService.GetSecrets(ctx, userID)
+	if err != nil {
+		return &pb.GetSecretsResponse{
+			Status: "error",
+		}, nil
+	}
+
+	s := []*pb.GetSecretsResponse_Secret {}
+
+	for _, v := range secrets {
+		var secretResponse pb.GetSecretsResponse_Secret
+		secretResponseData := []*pb.Data {}
+
+		secretResponse.Id = v.SecretID
+
+		for k, v := range v.Data.Value {
+			d := pb.Data{}
+		
+			d.Title = k
+			d.Value = v
+	
+			secretResponseData = append(secretResponseData, &d)
+		}
+
+		secretResponse.Data = secretResponseData
+
+
+		s = append(s, &secretResponse)
+	}
+
+
+	return &pb.GetSecretsResponse {
+		Status: "ok",
+		Secrets: s,
+	}, nil
+}
+
 func (gs *GRPCSecrets) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest)(*pb.DeleteSecretResponse, error) {
 	userID := getUserFromContext(ctx)
 	if userID == "" {

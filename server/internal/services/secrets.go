@@ -55,6 +55,43 @@ func (ss *SecretsService) GetSecret(ctx context.Context, secretID, userID string
 	return secret, nil
 }
 
+// GetSecrets method of getting a secrets of the user
+func (ss *SecretsService) GetSecrets(ctx context.Context, userID string) ([]models.Secret, error) {
+	rawSecrets, err := ss.db.GetSecrets(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var secrets []models.Secret
+
+	for _, v := range rawSecrets {
+		var secret models.Secret
+
+		err = v.Decrypt()
+		if err != nil {
+			return nil, err
+		}
+
+		var value map[string]string
+
+		err = json.Unmarshal(v.Data, &value)
+		if err != nil {
+			return nil, err
+		}
+
+		secret.Data.Value = value
+		secret.Data.CreatedAt = v.CreatedAt
+		secret.Data.Type = v.Type
+
+		secret.SecretID = v.ID
+		secret.UserID = v.UserID
+
+		secrets = append(secrets, secret)
+	}
+
+	return secrets, nil
+}
+
 // DeleteSecret method of deleting a secret of the user
 func (ss *SecretsService) DeleteSecret(ctx context.Context, secretID, userID string) error {
 	err := ss.db.DeleteSecret(ctx, secretID, userID)

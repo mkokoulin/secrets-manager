@@ -70,7 +70,7 @@ func (ul *UserLoop) clientLoop(ctx context.Context, accessToken string, refreshT
 		ul.userHandler.UserClient)
 	secretHandler := handlers.NewSecretHandler(secretClient)
 	for {
-		fmt.Println("To get all secrets input g, to create secret input c, to quit input q:")
+		fmt.Println("To get all secret input g, to create secret input c, to quit input q:")
 		var input string
 		_, err := fmt.Scan(&input)
 		if err != nil {
@@ -80,17 +80,19 @@ func (ul *UserLoop) clientLoop(ctx context.Context, accessToken string, refreshT
 		case input == "c":
 			ul.creatingLoop(ctx, secretHandler)
 		case input == "g":
-			result, err := secretHandler.GetSecret(ctx)
+			result, err := secretHandler.GetSecrets(ctx)
 			if err != nil {
 				fmt.Println("Error while get a secret ", err)
 				return
 			}
-			 
-			fmt.Println("--------------------------")
-			fmt.Printf("Secret ID: %v \nSecret type: %v \n", result.ID, result.Type)
-			fmt.Println("Data:")
-			for k, v := range result.Value {
-				fmt.Println(" ", k, ": ", v)
+			if len(result) == 0 {
+				fmt.Println("You have 0 secrets yet")
+			} else {
+				for _, r := range result {
+					fmt.Println("--------------------------")
+					fmt.Printf("Secret ID: %v \nSecret type: %s \n", r.ID, r.Type)
+					fmt.Printf("Data: %v", r.CreatedAt.GoString())
+				}
 			}
 			fmt.Println()
 		case input == "q":
@@ -144,7 +146,7 @@ func (ul *UserLoop) enterDataLoop(data []string) (map[string]string, error) {
 }
 
 func (ul *UserLoop) loginPasswordLoop(ctx context.Context, secretHandler *handlers.SecretHandler) {
-	valuesMap, err := ul.enterDataLoop([]string{"metadata", "login", "password"})
+	valuesMap, err := ul.enterDataLoop([]string{"login", "password"})
 	if err != nil {
 		fmt.Printf("Wrong input")
 		return
@@ -164,7 +166,7 @@ func (ul *UserLoop) loginPasswordLoop(ctx context.Context, secretHandler *handle
 }
 
 func (ul *UserLoop) stringLoop(ctx context.Context, secretHandler *handlers.SecretHandler) {
-	valuesMap, err := ul.enterDataLoop([]string{"metadata", "string"})
+	valuesMap, err := ul.enterDataLoop([]string{"string"})
 	if err != nil {
 		fmt.Printf("Wrong input")
 		return
@@ -183,7 +185,7 @@ func (ul *UserLoop) stringLoop(ctx context.Context, secretHandler *handlers.Secr
 }
 
 func (ul *UserLoop) binaryLoop(ctx context.Context, secretHandler *handlers.SecretHandler) {
-	valuesMap, err := ul.enterDataLoop([]string{"metadata", "binary"})
+	valuesMap, err := ul.enterDataLoop([]string{"binary"})
 	if err != nil {
 		fmt.Printf("Wrong input")
 		return
@@ -202,7 +204,7 @@ func (ul *UserLoop) binaryLoop(ctx context.Context, secretHandler *handlers.Secr
 }
 
 func (ul *UserLoop) creditCardLoop(ctx context.Context, secretHandler *handlers.SecretHandler) {
-	valuesMap, err := ul.enterDataLoop([]string{"metadata", "card_number", "expired_date", "owner", "CVV"})
+	valuesMap, err := ul.enterDataLoop([]string{"card_number", "expired_date", "owner", "CVV"})
 	if err != nil {
 		fmt.Printf("Wrong input")
 		return

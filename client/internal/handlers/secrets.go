@@ -27,6 +27,11 @@ func (sh *SecretHandler) CreateSecret(ctx context.Context, secret models.Secret)
 }
 
 // GetSecret method of getting a secret
-func (sh *SecretHandler) GetSecret(ctx context.Context) (models.Secret, error) {
-	return sh.secretClient.GetSecret(ctx)
+func (sh *SecretHandler) GetSecret(ctx context.Context, secretID string) (models.Secret, error) {
+	return sh.secretClient.GetSecret(ctx, secretID)
+}
+
+// GetSecrets method of getting a secrets
+func (sh *SecretHandler) GetSecrets(ctx context.Context) ([]models.Secret, error) {
+	return sh.secretClient.GetSecrets(ctx)
 }

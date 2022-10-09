@@ -17,5 +17,6 @@ type UserServiceInterface interface {
 type SecretServiceInterface interface {
 	AddSecret(ctx context.Context, secret models.RawSecretData) error
 	GetSecret(ctx context.Context, secretID, userID string) (models.Secret, error)
+	GetSecrets(ctx context.Context, userID string) ([]models.Secret, error)
 	DeleteSecret(ctx context.Context, secretID, userID string) error
 }

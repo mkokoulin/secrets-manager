@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SecretsClient interface {
 	CreateSecret(ctx context.Context, in *CreateSecretRequest, opts ...grpc.CallOption) (*CreateSecretResponse, error)
 	GetSecret(ctx context.Context, in *GetSecretRequest, opts ...grpc.CallOption) (*GetSecretResponse, error)
+	GetSecrets(ctx context.Context, in *GetSecretsRequest, opts ...grpc.CallOption) (*GetSecretsResponse, error)
 	DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error)
 }
 
@@ -53,6 +54,15 @@ func (c *secretsClient) GetSecret(ctx context.Context, in *GetSecretRequest, opt
 	return out, nil
 }
 
+func (c *secretsClient) GetSecrets(ctx context.Context, in *GetSecretsRequest, opts ...grpc.CallOption) (*GetSecretsResponse, error) {
+	out := new(GetSecretsResponse)
+	err := c.cc.Invoke(ctx, "/secrets.Secrets/GetSecrets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *secretsClient) DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error) {
 	out := new(DeleteSecretResponse)
 	err := c.cc.Invoke(ctx, "/secrets.Secrets/DeleteSecret", in, out, opts...)
@@ -68,6 +78,7 @@ func (c *secretsClient) DeleteSecret(ctx context.Context, in *DeleteSecretReques
 type SecretsServer interface {
 	CreateSecret(context.Context, *CreateSecretRequest) (*CreateSecretResponse, error)
 	GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error)
+	GetSecrets(context.Context, *GetSecretsRequest) (*GetSecretsResponse, error)
 	DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error)
 	mustEmbedUnimplementedSecretsServer()
 }
@@ -81,6 +92,9 @@ func (UnimplementedSecretsServer) CreateSecret(context.Context, *CreateSecretReq
 }
 func (UnimplementedSecretsServer) GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecret not implemented")
+}
+func (UnimplementedSecretsServer) GetSecrets(context.Context, *GetSecretsRequest) (*GetSecretsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSecrets not implemented")
 }
 func (UnimplementedSecretsServer) DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSecret not implemented")
@@ -134,6 +148,24 @@ func _Secrets_GetSecret_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Secrets_GetSecrets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSecretsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecretsServer).GetSecrets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/secrets.Secrets/GetSecrets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecretsServer).GetSecrets(ctx, req.(*GetSecretsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Secrets_DeleteSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteSecretRequest)
 	if err := dec(in); err != nil {
@@ -166,6 +198,10 @@ var Secrets_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSecret",
 			Handler:    _Secrets_GetSecret_Handler,
+		},
+		{
+			MethodName: "GetSecrets",
+			Handler:    _Secrets_GetSecrets_Handler,
 		},
 		{
 			MethodName: "DeleteSecret",

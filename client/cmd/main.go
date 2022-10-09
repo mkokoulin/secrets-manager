@@ -18,7 +18,7 @@ var (
 	address    string
 )
 
-const defaultAddress = "localhost:50051"
+const defaultAddress = "localhost:5001"
 
 func init() {
 	envAddress := os.Getenv("ADDRESS")

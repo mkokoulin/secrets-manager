@@ -105,6 +105,18 @@ func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID stri
 	return result, nil
 }
 
+// GetSecrets method for getting a user secrets
+func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]models.RawSecretData, error) {
+	var result []models.RawSecretData
+
+	err := pd.conn.Table("secrets").Where("user_id = ?", userID).Find(&result).Error
+	if err != nil {
+		return nil, customerrors.NewCustomError(err, "user not found")
+	}
+
+	return result, nil
+}
+
 func (pd *PostgresDatabase) DeleteSecret(ctx context.Context, secretID, userID string) error {
 	err := pd.conn.Table("secrets").Delete("id = ? AND user_id = ?", secretID, userID).Error
 	if err != nil {

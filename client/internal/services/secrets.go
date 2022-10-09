@@ -38,7 +38,7 @@ func NewSecretClient(address string, access string, refresh string, userClient *
 }
 
 // GetSecret method for getting a secret
-func (c *SecretClient) GetSecret(ctx context.Context) (models.Secret, error) {
+func (c *SecretClient) GetSecret(ctx context.Context, secretID string) (models.Secret, error) {
 	client, err := c.getConn()
 	if err != nil {
 		return models.Secret{}, err
@@ -72,6 +72,52 @@ func (c *SecretClient) GetSecret(ctx context.Context) (models.Secret, error) {
 
 	for _, secret := range response.Secret {		
 		result.Value[secret.Title] = secret.Value
+	}
+
+	return result, nil
+}
+
+// GetSecrets method for getting a secrets
+func (c *SecretClient) GetSecrets(ctx context.Context) ([]models.Secret, error) {
+	client, err := c.getConn()
+	if err != nil {
+		return nil, err
+	}
+
+	message := pb.GetSecretsRequest{}
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", c.accessToken))
+	response, err := client.GetSecrets(ctx, &message)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []models.Secret
+	if response.Status == "unauthorized" {
+		err = c.tryToRefreshToken(ctx)
+		if err != nil {
+			return nil, err
+		}
+		response, err = client.GetSecrets(ctx, &message)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if response.Status != "ok" {
+		return nil, errors.New(response.Status)
+	}
+
+	for _, v := range response.Secrets {
+		var s models.Secret
+
+		s.ID = v.Id
+		s.Type = v.Type
+
+		for _, secret := range v.Data {		
+			s.Value[secret.Title] = secret.Value
+		}
+
+		result = append(result, s)
 	}
 
 	return result, nil

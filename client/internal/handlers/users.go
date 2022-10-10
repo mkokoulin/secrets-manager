@@ -22,7 +22,7 @@ type UserHandler struct {
 
 // RegisterUser method for registering a user
 func (uh *UserHandler) RegisterUser(ctx context.Context) (string, string, error) {
-	login, password, err := uh.getUserCredentials(ctx)
+	login, password, err := uh.getUserCredentials()
 	if err != nil {
 		return "", "", err
 	}
@@ -31,14 +31,14 @@ func (uh *UserHandler) RegisterUser(ctx context.Context) (string, string, error)
 
 // AuthUser method for auth a user
 func (uh *UserHandler) AuthUser(ctx context.Context) (string, string, error) {
-	login, password, err := uh.getUserCredentials(ctx)
+	login, password, err := uh.getUserCredentials()
 	if err != nil {
 		return "", "", err
 	}
 	return uh.UserClient.Auth(ctx, login, password)
 }
 
-func (uh *UserHandler) getUserCredentials(ctx context.Context) (string, string, error) {
+func (uh *UserHandler) getUserCredentials() (string, string, error) {
 	var login, password string
 	fmt.Println("Enter login:")
 	_, err := fmt.Scan(&login)

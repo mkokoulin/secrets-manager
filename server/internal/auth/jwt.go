@@ -5,12 +5,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
  	"strings"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/rs/zerolog/log"
 )
 
 // TokenDetails structure for working with JWT auth
@@ -54,7 +54,7 @@ func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, ac
 	td.AccessToken = at
 	td.RefreshToken = rt
 
-	log.Println("token has been generated")
+	log.Log().Msg("token has been generated")
 
 	return td, nil
 }
@@ -123,7 +123,7 @@ func RefreshToken(refreshToken, refreshTokenSecret string, accessTokenLiveTimeMi
 			return nil, err
 		}
 
-		log.Println("token has been refreshed")
+		log.Log().Msg("token has been refreshed")
 
 		return td, nil
 	} else {

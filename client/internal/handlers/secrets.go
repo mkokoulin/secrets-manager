@@ -18,7 +18,6 @@ func NewSecretHandler(client *services.SecretClient) *SecretHandler {
 // SecretHandler structure for handling secret
 type SecretHandler struct {
 	secretClient *services.SecretClient
-	userClient   *services.UserClient
 }
 
 // CreateSecret method of creating a secret

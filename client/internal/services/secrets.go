@@ -54,7 +54,7 @@ func (c *SecretClient) GetSecret(ctx context.Context, secretID string) (models.S
 
 	var result models.Secret
 	if response.Status == "unauthorized" {
-		err = c.tryToRefreshToken(ctx)
+		err = c.tryToRefreshToken()
 		if err != nil {
 			return models.Secret{}, err
 		}
@@ -94,7 +94,7 @@ func (c *SecretClient) GetSecrets(ctx context.Context) ([]models.Secret, error) 
 
 	var result []models.Secret
 	if response.Status == "unauthorized" {
-		err = c.tryToRefreshToken(ctx)
+		err = c.tryToRefreshToken()
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +139,7 @@ func (c *SecretClient) CreateSecret(ctx context.Context, secret models.Secret) e
 		return err
 	}
 	if response.Status == "unauthorized" {
-		err = c.tryToRefreshToken(ctx)
+		err = c.tryToRefreshToken()
 		if err != nil {
 			return err
 		}
@@ -154,8 +154,8 @@ func (c *SecretClient) CreateSecret(ctx context.Context, secret models.Secret) e
 	return nil
 }
 
-func (c *SecretClient) tryToRefreshToken(ctx context.Context) error {
-	access, refresh, err := c.userClient.Refresh(ctx, c.refreshToken)
+func (c *SecretClient) tryToRefreshToken() error {
+	access, refresh, err := c.userClient.Refresh(c.refreshToken)
 	if err != nil {
 		return errors.New("failed to refresh token")
 	}

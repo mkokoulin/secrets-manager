@@ -1,4 +1,4 @@
-// Package main entrance file for client application 
+// Package main entrance file for client application
 package main
 
 import (
@@ -10,32 +10,26 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/client/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/loops"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/services"
+	"github.com/mkokoulin/secrets-manager.git/client/internal/config"
 )
 
 var (
 	BuildTime  string
 	AppVersion string
-	address    string
 )
 
 const defaultAddress = "localhost:5001"
 
-func init() {
-	envAddress := os.Getenv("ADDRESS")
-	if envAddress != "" {
-		address = envAddress
-	}
-	address = *flag.String("a", defaultAddress, "address of gGRPC server")
-}
-
 func main() {
+	cfg := config.New()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	fmt.Println("InitApp")
 	fmt.Printf("App version: %v, Date compile: %v\n", AppVersion, BuildTime)
-	userClient := services.NewUserClient(address)
+	userClient := services.NewUserClient(cfg.Address)
 	userHandler := handlers.NewUserHandler(userClient)
 
-	userLoop := loops.NewUserLoop(address, userHandler)
+	userLoop := loops.NewUserLoop(cfg.Address, userHandler)
 	userLoop.MainLoop(ctx)
 	cancel()
 }

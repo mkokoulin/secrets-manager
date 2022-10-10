@@ -33,7 +33,7 @@ func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) 
 		Password: in.Password,
 	}
 
-	err := gu.userService.CreateUser(ctx, user)
+	err := gu.userService.CreateUser(user)
 	if err != nil {
 		return &pb.CreateUserResponse{
 			Status: customerrors.ParseError(err),
@@ -88,7 +88,7 @@ func (gu *GRPCUsers) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest) (
 }
 
 func (gu *GRPCUsers) RefreshToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.RefreshTokenResponse, error) {
-	token, err := gu.userService.RefreshToken(ctx, in.RefreshToken)
+	token, err := gu.userService.RefreshToken(in.RefreshToken)
 	if err != nil {
 		return &pb.RefreshTokenResponse{
 			Status: customerrors.ParseError(err),

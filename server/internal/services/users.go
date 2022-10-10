@@ -28,8 +28,8 @@ func NewUsersService(db UserRepoInterface, accessTokenLiveTimeMinutes, refreshTo
 }
 
 // CreateUser user creation method
-func (us *UsersService) CreateUser(ctx context.Context, user models.User) error {
-	return us.db.CreateUser(ctx, user)
+func (us *UsersService) CreateUser(user models.User) error {
+	return us.db.CreateUser(user)
 }
 
 // AuthUser user authorization method
@@ -48,6 +48,6 @@ func (us *UsersService) DeleteUser(ctx context.Context, userID string) error {
 }
 
 // RefreshToken method for updating user tokens
-func (us *UsersService) RefreshToken(ctx context.Context, refreshToken string) (*auth.TokenDetails, error) {
+func (us *UsersService) RefreshToken(refreshToken string) (*auth.TokenDetails, error) {
 	return auth.RefreshToken(refreshToken, us.RefreshTokenSecret, us.AccessTokenLiveTimeMinutes, us.RefreshTokenLiveTimeDays)
 }

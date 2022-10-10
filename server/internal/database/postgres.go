@@ -23,7 +23,7 @@ func NewPostgresDatabase(conn *gorm.DB) *PostgresDatabase {
 }
 
 // CreateUser method for creating a user
-func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) error {
+func (pd *PostgresDatabase) CreateUser(user models.User) error {
 	err := pd.conn.Transaction(func(tx *gorm.DB) error {
 		var exists bool
 

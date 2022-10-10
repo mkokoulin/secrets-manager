@@ -22,7 +22,6 @@ func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 type UserLoop struct {
 	address       string
 	userHandler   *handlers.UserHandler
-	secretHandler *handlers.SecretHandler
 }
 
 func (ul *UserLoop) MainLoop(ctx context.Context) {

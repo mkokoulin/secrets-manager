@@ -8,7 +8,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -20,10 +19,6 @@ import (
 	"github.com/mkokoulin/secrets-manager.git/server/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/services"
-)
-
-var (
-	grpcServer   *grpc.Server
 )
 
 func init() {
@@ -59,8 +54,15 @@ func main() {
 		log.Error().Caller().Str("database URI", cfg.DatabaseURI).Err(err).Msg("")
 	}
 
-	conn.AutoMigrate(&models.User{})
-	conn.Table("secrets").AutoMigrate(&models.RawSecretData{})
+	err = conn.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Error().Caller().Str("database migrating an error: ", err.Error()).Err(err).Msg("")
+	}
+	
+	err = conn.Table("secrets").AutoMigrate(&models.RawSecretData{})
+	if err != nil {
+		log.Error().Caller().Str("database migrating an error: ", err.Error()).Err(err).Msg("")
+	}
 
 	repo := database.NewPostgresDatabase(conn)
 

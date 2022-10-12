@@ -3,9 +3,7 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"os"
 
 	"github.com/mkokoulin/secrets-manager.git/client/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/loops"
@@ -17,8 +15,6 @@ var (
 	BuildTime  string
 	AppVersion string
 )
-
-const defaultAddress = "localhost:5001"
 
 func main() {
 	cfg := config.New()

@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 
-	"github.com/mkokoulin/secrets-manager.git/client/internal/models"
+	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
 	pb "github.com/mkokoulin/secrets-manager.git/server/internal/pb/users"
 )
 
@@ -46,19 +46,6 @@ func TestGRPCUsers_CreateUser(t *testing.T) {
 			userServiceMock := NewMockUserServiceInterface(ctrl)
 
 			userServiceMock.EXPECT().CreateUser(gomock.Any(), user).Return(tt.mockError).AnyTimes()
-
-			// gu := &GRPCUsers{
-			// 	UnimplementedUsersServer: tt.fields.UnimplementedUsersServer,
-			// 	userService:              tt.fields.userService,
-			// }
-			// got, err := gu.CreateUser(tt.args.ctx, tt.args.in)
-			// if (err != nil) != tt.wantErr {
-			// 	t.Errorf("GRPCUsers.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
-			// 	return
-			// }
-			// if !reflect.DeepEqual(got, tt.want) {
-			// 	t.Errorf("GRPCUsers.CreateUser() = %v, want %v", got, tt.want)
-			// }
 		})
 	}
 }

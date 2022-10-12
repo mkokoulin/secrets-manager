@@ -103,13 +103,6 @@ func TestRawSecretData_Encrypt(t *testing.T) {
 				t.Errorf("Secret.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			var r []byte
-
-
-			if rsd.Data == r {
-				t.Errorf("RawSecretData.Encrypt() error = %v, wantErr %v", err, tt.wantErr)
-			}
 		})
 	}
 }

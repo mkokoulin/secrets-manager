@@ -28,8 +28,8 @@ func NewUsersService(db UserRepoInterface, accessTokenLiveTimeMinutes, refreshTo
 }
 
 // CreateUser user creation method
-func (us *UsersService) CreateUser(user models.User) error {
-	return us.db.CreateUser(user)
+func (us *UsersService) CreateUser(ctx context.Context, user models.User) error {
+	return us.db.CreateUser(ctx, user)
 }
 
 // AuthUser user authorization method

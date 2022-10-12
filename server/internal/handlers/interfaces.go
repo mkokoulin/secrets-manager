@@ -8,7 +8,7 @@ import (
 )
 
 type UserServiceInterface interface {
-	CreateUser(user models.User) error
+	CreateUser(ctx context.Context, user models.User) error
 	AuthUser(ctx context.Context, user models.User) (*auth.TokenDetails, error)
 	DeleteUser(ctx context.Context, userID string) error
 	RefreshToken(refreshToken string) (*auth.TokenDetails, error)

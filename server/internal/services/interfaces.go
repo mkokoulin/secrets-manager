@@ -8,7 +8,7 @@ import (
 
 // UserRepoInterface interface for interacting with the user database
 type UserRepoInterface interface {
-	CreateUser(user models.User) error
+	CreateUser(ctx context.Context, user models.User) error
 	CheckUserPassword(ctx context.Context, user models.User) (string, error)
 	DeleteUser(ctx context.Context, userID string) error
 }

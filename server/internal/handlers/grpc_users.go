@@ -33,7 +33,7 @@ func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) 
 		Password: in.Password,
 	}
 
-	err := gu.userService.CreateUser(user)
+	err := gu.userService.CreateUser(ctx, user)
 	if err != nil {
 		return &pb.CreateUserResponse{
 			Status: customerrors.ParseError(err),

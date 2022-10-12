@@ -23,8 +23,8 @@ func NewPostgresDatabase(conn *gorm.DB) *PostgresDatabase {
 }
 
 // CreateUser method for creating a user
-func (pd *PostgresDatabase) CreateUser(user models.User) error {
-	err := pd.conn.Transaction(func(tx *gorm.DB) error {
+func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) error {
+	err := pd.conn.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var exists bool
 
 		err := tx.Model(&models.User{}).Select("count(*) > 0").Where("login = ?", user.Login).Find(&exists).Error
@@ -62,7 +62,7 @@ func (pd *PostgresDatabase) CreateUser(user models.User) error {
 func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.User) (string, error) {
 	var result models.User
 
-	err := pd.conn.Model(&models.User{}).Where("login = ? AND is_deleted = false", user.Login).First(&result).Error
+	err := pd.conn.WithContext(ctx).Model(&models.User{}).Where("login = ? AND is_deleted = false", user.Login).First(&result).Error
 	if err != nil {
 		return result.Login, customerrors.NewCustomError(err, "user not found")
 	}
@@ -76,7 +76,7 @@ func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.U
 
 // DeleteUser method for deleting a user
 func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {	
-	err := pd.conn.Model(&models.User{}).Where("login=?", userID).Update("is_deleted", true).Error
+	err := pd.conn.WithContext(ctx).Model(&models.User{}).Where("login=?", userID).Update("is_deleted", true).Error
 	if err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during deleting a user")
 	}
@@ -86,7 +86,7 @@ func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error
 
 // AddSecret method for adding a user secret
 func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecretData) error {
-	if err := pd.conn.Table("secrets").Create(&secret).Error; err != nil {
+	if err := pd.conn.WithContext(ctx).Table("secrets").Create(&secret).Error; err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during secret creation")
 	}
 	
@@ -97,7 +97,7 @@ func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecr
 func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID string) (models.RawSecretData, error) {
 	var result models.RawSecretData
 
-	err := pd.conn.Table("secrets").Where("id = ? AND user_id = ?", secretID, userID).First(&result).Error
+	err := pd.conn.WithContext(ctx).Table("secrets").Where("id = ? AND user_id = ?", secretID, userID).First(&result).Error
 	if err != nil {
 		return models.RawSecretData{}, customerrors.NewCustomError(err, "user not found")
 	}
@@ -109,7 +109,7 @@ func (pd *PostgresDatabase) GetSecret(ctx context.Context, secretID, userID stri
 func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]models.RawSecretData, error) {
 	var result []models.RawSecretData
 
-	err := pd.conn.Table("secrets").Where("user_id = ?", userID).Find(&result).Error
+	err := pd.conn.WithContext(ctx).Table("secrets").Where("user_id = ?", userID).Find(&result).Error
 	if err != nil {
 		return nil, customerrors.NewCustomError(err, "user not found")
 	}
@@ -118,7 +118,7 @@ func (pd *PostgresDatabase) GetSecrets(ctx context.Context, userID string) ([]mo
 }
 
 func (pd *PostgresDatabase) DeleteSecret(ctx context.Context, secretID, userID string) error {
-	err := pd.conn.Table("secrets").Delete("id = ? AND user_id = ?", secretID, userID).Error
+	err := pd.conn.WithContext(ctx).Table("secrets").Delete("id = ? AND user_id = ?", secretID, userID).Error
 	if err != nil {
 		return customerrors.NewCustomError(err, "secrets not found")
 	}

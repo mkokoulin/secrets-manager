@@ -11,10 +11,11 @@ import (
 	"unicode"
 
 	"github.com/google/uuid"
-	
-	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
+
 	"github.com/mkokoulin/secrets-manager.git/server/internal/helpers/encryptor"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/helpers/lunh"
+
+	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
 )
 
 var (
@@ -24,35 +25,35 @@ var (
 
 // Secret secret storage structure
 type Secret struct {
-	UserID string `json:"user_id"`
-	SecretID string 
-	Data SecretData `db:"secrets_data" gorm:"foreignKey:SecretID"`
+	UserID   string `json:"user_id"`
+	SecretID string
+	Data     SecretData `db:"secrets_data" gorm:"foreignKey:SecretID"`
 }
 
 // SecretData structure for storing secret data
 type SecretData struct {
-	ID string `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	Type string `json:"type"`
-	IsDeleted bool `json:"is_deleted"`
-	Value map[string]string `json:"value"`
+	ID        string            `json:"id"`
+	CreatedAt time.Time         `json:"created_at"`
+	Type      string            `json:"type"`
+	IsDeleted bool              `json:"is_deleted"`
+	Value     map[string]string `json:"value"`
 }
 
 // RawSecretData structure of the encrypted secret
 type RawSecretData struct {
-	ID string `json:"id"`
+	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	UserID string `json:"user_id"`
-	Type string `json:"type"`
-	IsDeleted bool `json:"is_deleted"`
-	Data   []byte `json:"secret_data"`
+	UserID    string    `json:"user_id"`
+	Type      string    `json:"type"`
+	IsDeleted bool      `json:"is_deleted"`
+	Data      []byte    `json:"secret_data"`
 }
 
 func (rsd *RawSecretData) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
 		CreatedAt string `json:"created_at"`
 	}{
-		CreatedAt:   rsd.CreatedAt.Format(time.RFC3339),
+		CreatedAt: rsd.CreatedAt.Format(time.RFC3339),
 	}
 	return json.Marshal(aliasValue)
 }
@@ -70,11 +71,11 @@ func NewRawSecretData(secret Secret) (*RawSecretData, error) {
 	}
 
 	data := RawSecretData{
-		ID: uuid.New().String(),
-		UserID: secret.UserID,
+		ID:        uuid.New().String(),
+		UserID:    secret.UserID,
 		CreatedAt: time.Now(),
-		Type: secret.Data.Type,
-		Data: value,
+		Type:      secret.Data.Type,
+		Data:      value,
 	}
 
 	err = data.Encrypt()
@@ -110,16 +111,16 @@ func (rsd *RawSecretData) Decrypt() error {
 }
 
 // Validate secret data validation function
-func (s *SecretData) Validate() error {
-	switch s.Type {
+func (sd *SecretData) Validate() error {
+	switch sd.Type {
 	case "binary":
-		return s.validateBinary()
+		return sd.validateBinary()
 	case "login_password":
-		return s.validateLoginPassword()
+		return sd.validateLoginPassword()
 	case "credit_card":
-		return s.validateCreditCard()
+		return sd.validateCreditCard()
 	case "string":
-		return s.validateString()
+		return sd.validateString()
 	default:
 		return customerrors.NewCustomError(errors.New("wrong type of secret"), "wrong type")
 	}
@@ -171,15 +172,6 @@ func (sd *SecretData) checkFiledIsNumber(fields []string) error {
 	return nil
 }
 
-func isInt(s string) bool {
-	for _, c := range s {
-		if !unicode.IsDigit(c) {
-			return false
-		}
-	}
-	return true
-}
-
 func (sd *SecretData) checkUsefulData(fields []string) error {
 	var missingFields []string
 	for _, field := range fields {
@@ -193,4 +185,13 @@ func (sd *SecretData) checkUsefulData(fields []string) error {
 		return customerrors.NewCustomError(errors.New(text), text)
 	}
 	return nil
+}
+
+func isInt(s string) bool {
+	for _, c := range s {
+		if !unicode.IsDigit(c) {
+			return false
+		}
+	}
+	return true
 }

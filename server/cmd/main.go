@@ -1,4 +1,4 @@
-// Package main entrance file for server application 
+// Package main entrance file for server application
 package main
 
 import (
@@ -13,20 +13,18 @@ import (
 
 	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 
-	"github.com/mkokoulin/secrets-manager.git/server/internal/middleware"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/config"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/database"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/handlers"
+	"github.com/mkokoulin/secrets-manager.git/server/internal/middleware"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/services"
 )
 
-func init() {
+func main() {
 	zerolog.TimeFieldFormat = "2006.02.01-15:04:05.000"
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-}
 
-func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -58,7 +56,7 @@ func main() {
 	if err != nil {
 		log.Error().Caller().Str("database migrating an error: ", err.Error()).Err(err).Msg("")
 	}
-	
+
 	err = conn.Table("secrets").AutoMigrate(&models.RawSecretData{})
 	if err != nil {
 		log.Error().Caller().Str("database migrating an error: ", err.Error()).Err(err).Msg("")
@@ -68,7 +66,7 @@ func main() {
 
 	userService := services.NewUsersService(repo, cfg.AccessTokenLiveTimeMinutes, cfg.RefreshTokenLiveTimeDays, cfg.AccessTokenSecret, cfg.RefreshTokenSecret)
 	GRPCUsers := handlers.NewGRPCUsers(userService)
-	
+
 	secretsService := services.NewSecretsService(repo)
 	GRPCSecrets := handlers.NewGRPCSecrets(secretsService)
 
@@ -91,7 +89,7 @@ func main() {
 			log.Error().Caller().Str("gRPC server failed to listen", "").Err(err).Msg("")
 			return err
 		}
-		
+
 		return nil
 	})
 
@@ -110,7 +108,6 @@ func main() {
 	if err != nil {
 		log.Error().Caller().Str("server returning an error: ", err.Error()).Err(err).Msg("")
 	}
-
 
 	log.Log().Caller().Msg("Run server")
 }

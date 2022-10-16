@@ -5,10 +5,10 @@ import (
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
-	
+
 	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
-	pb "github.com/mkokoulin/secrets-manager.git/server/internal/pb/users"
 	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
+	pb "github.com/mkokoulin/secrets-manager.git/server/internal/pb/users"
 )
 
 type GRPCUsers struct {
@@ -17,7 +17,7 @@ type GRPCUsers struct {
 }
 
 func NewGRPCUsers(userService UserServiceInterface) *GRPCUsers {
-	return &GRPCUsers {
+	return &GRPCUsers{
 		userService: userService,
 	}
 }
@@ -27,9 +27,9 @@ func (gu *GRPCUsers) RegisterService(r grpc.ServiceRegistrar) {
 }
 
 func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) (*pb.CreateUserResponse, error) {
-	user := models.User {
-		ID: uuid.New(),
-		Login: in.Login,
+	user := models.User{
+		ID:       uuid.New(),
+		Login:    in.Login,
 		Password: in.Password,
 	}
 
@@ -48,15 +48,15 @@ func (gu *GRPCUsers) CreateUser(ctx context.Context, in *pb.CreateUserRequiest) 
 	}
 
 	return &pb.CreateUserResponse{
-		Status: "created",
-		AccessToken: token.AccessToken,
+		Status:       "created",
+		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, nil
 }
 
 func (gu *GRPCUsers) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb.AuthUserResponse, error) {
-	user := models.User {
-		Login: in.Login,
+	user := models.User{
+		Login:    in.Login,
 		Password: in.Password,
 	}
 
@@ -67,9 +67,9 @@ func (gu *GRPCUsers) AuthUser(ctx context.Context, in *pb.AuthUserRequest) (*pb.
 		}, nil
 	}
 
-	return &pb.AuthUserResponse {
-		Status: "ok",
-		AccessToken: token.AccessToken,
+	return &pb.AuthUserResponse{
+		Status:       "ok",
+		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, err
 }
@@ -96,8 +96,8 @@ func (gu *GRPCUsers) RefreshToken(ctx context.Context, in *pb.RefreshTokenReques
 	}
 
 	return &pb.RefreshTokenResponse{
-		Status: "ok",
-		AccessToken: token.AccessToken,
+		Status:       "ok",
+		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 	}, nil
 }

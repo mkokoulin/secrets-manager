@@ -18,8 +18,8 @@ type Service interface {
 }
 
 type GRPCServer struct {
-	cfg *config.Config
-	server *grpc.Server
+	cfg                *config.Config
+	server             *grpc.Server
 	logger             *zerolog.Logger
 	services           []Service
 	unaryInterceptors  []grpc.UnaryServerInterceptor

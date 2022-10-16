@@ -4,10 +4,14 @@ package handlers
 import (
 	"context"
 
-	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
-	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
-	pb "github.com/mkokoulin/secrets-manager.git/server/internal/pb/secrets"
 	"google.golang.org/grpc"
+
+	"github.com/mkokoulin/secrets-manager.git/server/internal/services"
+	"github.com/mkokoulin/secrets-manager.git/server/internal/auth"
+	"github.com/mkokoulin/secrets-manager.git/server/internal/models"
+
+	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
+	pb "github.com/mkokoulin/secrets-manager.git/server/internal/pb/secrets"
 )
 
 type GRPCSecrets struct {
@@ -16,7 +20,7 @@ type GRPCSecrets struct {
 }
 
 func NewGRPCSecrets(secretService SecretServiceInterface) *GRPCSecrets {
-	return &GRPCSecrets {
+	return &GRPCSecrets{
 		secretService: secretService,
 	}
 }
@@ -29,11 +33,11 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 	userID := getUserFromContext(ctx)
 	if userID == "" {
 		return &pb.CreateSecretResponse{
-			Status: "unauthorized",
+			Status: services.UnauthorizedStatus,
 		}, nil
 	}
 
-	data := map[string]string {}
+	data := map[string]string{}
 
 	for _, v := range in.Data {
 		data[v.Title] = v.Value
@@ -41,8 +45,8 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 
 	secret := models.Secret{
 		UserID: userID,
-		Data: models.SecretData {
-			Type: in.Type,
+		Data: models.SecretData{
+			Type:  in.Type,
 			Value: data,
 		},
 	}
@@ -57,16 +61,16 @@ func (gs *GRPCSecrets) CreateSecret(ctx context.Context, in *pb.CreateSecretRequ
 		return nil, customerrors.NewCustomError(err, "an error occurred while saving the secret")
 	}
 
-	return &pb.CreateSecretResponse {
+	return &pb.CreateSecretResponse{
 		Status: "ok",
 	}, nil
 }
 
-func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*pb.GetSecretResponse, error) {
+func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest) (*pb.GetSecretResponse, error) {
 	userID := getUserFromContext(ctx)
 	if userID == "" {
 		return &pb.GetSecretResponse{
-			Status: "unauthorized",
+			Status: services.UnauthorizedStatus,
 		}, nil
 	}
 
@@ -75,30 +79,30 @@ func (gs *GRPCSecrets) GetSecret(ctx context.Context, in *pb.GetSecretRequest)(*
 		return nil, customerrors.NewCustomError(err, "an error occurred while receiving the secret")
 	}
 
-	date := []*pb.Data {}
+	date := []*pb.Data{}
 
 	for k, v := range secret.Data.Value {
 		d := pb.Data{}
-		
+
 		d.Title = k
 		d.Value = v
 
 		date = append(date, &d)
 	}
 
-	return &pb.GetSecretResponse {
-		Id: secret.SecretID,
-		Type: secret.Data.Type,
+	return &pb.GetSecretResponse{
+		Id:     secret.SecretID,
+		Type:   secret.Data.Type,
 		Status: "ok",
 		Secret: date,
 	}, nil
 }
 
-func (gs *GRPCSecrets) GetSecrets(ctx context.Context, in *pb.GetSecretsRequest)(*pb.GetSecretsResponse, error) {
+func (gs *GRPCSecrets) GetSecrets(ctx context.Context, in *pb.GetSecretsRequest) (*pb.GetSecretsResponse, error) {
 	userID := getUserFromContext(ctx)
 	if userID == "" {
 		return &pb.GetSecretsResponse{
-			Status: "unauthorized",
+			Status: services.UnauthorizedStatus,
 		}, nil
 	}
 
@@ -109,41 +113,39 @@ func (gs *GRPCSecrets) GetSecrets(ctx context.Context, in *pb.GetSecretsRequest)
 		}, nil
 	}
 
-	s := []*pb.GetSecretsResponse_Secret {}
+	s := []*pb.GetSecretsResponse_Secret{}
 
 	for _, v := range secrets {
 		var secretResponse pb.GetSecretsResponse_Secret
-		secretResponseData := []*pb.Data {}
+		secretResponseData := []*pb.Data{}
 
 		secretResponse.Id = v.SecretID
 
 		for k, v := range v.Data.Value {
 			d := pb.Data{}
-		
+
 			d.Title = k
 			d.Value = v
-	
+
 			secretResponseData = append(secretResponseData, &d)
 		}
 
 		secretResponse.Data = secretResponseData
 
-
 		s = append(s, &secretResponse)
 	}
 
-
-	return &pb.GetSecretsResponse {
-		Status: "ok",
+	return &pb.GetSecretsResponse{
+		Status:  "ok",
 		Secrets: s,
 	}, nil
 }
 
-func (gs *GRPCSecrets) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest)(*pb.DeleteSecretResponse, error) {
+func (gs *GRPCSecrets) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest) (*pb.DeleteSecretResponse, error) {
 	userID := getUserFromContext(ctx)
 	if userID == "" {
 		return &pb.DeleteSecretResponse{
-			Status: "unauthorized",
+			Status: services.UnauthorizedStatus,
 		}, nil
 	}
 
@@ -152,18 +154,16 @@ func (gs *GRPCSecrets) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequ
 		return nil, customerrors.NewCustomError(err, "an error occurred while deleting the secret")
 	}
 
-	return &pb.DeleteSecretResponse {
+	return &pb.DeleteSecretResponse{
 		Status: "ok",
 	}, nil
 }
 
 func getUserFromContext(ctx context.Context) string {
-	userID := ctx.Value("userID")
+	userID := ctx.Value(auth.ContextValue)
 	if userID != nil {
 		if str, ok := userID.(string); ok {
 			return str
-		} else {
-			return ""
 		}
 	}
 	return ""

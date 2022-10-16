@@ -1,4 +1,4 @@
-// Package errors includes functions for errors handling 
+// Package errors includes functions for errors handling
 package errors
 
 import "fmt"
@@ -18,6 +18,7 @@ func ParseError(err error) string {
 		return "internal server error"
 	}
 }
+
 type CustomError struct {
 	Err        error
 	StatusCode string

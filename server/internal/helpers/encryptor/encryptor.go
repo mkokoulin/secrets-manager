@@ -6,11 +6,10 @@ import (
 	"crypto/cipher"
 
 	customerrors "github.com/mkokoulin/secrets-manager.git/server/internal/errors"
-
 )
 
 // Encrypt function for encrypting information
-func Encrypt(key, nonce,  data []byte) ([]byte, error) {
+func Encrypt(key, nonce, data []byte) ([]byte, error) {
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, customerrors.NewCustomError(err, "error with encrypt")
@@ -22,12 +21,12 @@ func Encrypt(key, nonce,  data []byte) ([]byte, error) {
 	}
 
 	encryptData := aesgcm.Seal(nil, nonce, data, nil)
-		
+
 	return encryptData, nil
 }
 
 // Decrypt function for decrypting information
-func Decrypt(key, nonce,  data []byte) ([]byte, error) {
+func Decrypt(key, nonce, data []byte) ([]byte, error) {
 	aesblock, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -44,4 +43,4 @@ func Decrypt(key, nonce,  data []byte) ([]byte, error) {
 	}
 
 	return decryptData, nil
-}	
+}

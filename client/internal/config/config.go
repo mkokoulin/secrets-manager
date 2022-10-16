@@ -21,7 +21,6 @@ func New() *Config {
 		Address: DefaultAddress,
 	}
 
-
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatal(err)
 	}

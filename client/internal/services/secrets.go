@@ -27,6 +27,8 @@ type SecretClient struct {
 	userClient   *UserClient
 }
 
+const UnauthorizedStatus = "unauthorized"
+
 // NewSecretClient function for creates new secret client
 func NewSecretClient(address string, access string, refresh string, userClient *UserClient) *SecretClient {
 	return &SecretClient{
@@ -53,7 +55,7 @@ func (c *SecretClient) GetSecret(ctx context.Context, secretID string) (models.S
 	}
 
 	var result models.Secret
-	if response.Status == "unauthorized" {
+	if response.Status == UnauthorizedStatus {
 		err = c.tryToRefreshToken(ctx)
 		if err != nil {
 			return models.Secret{}, err
@@ -70,7 +72,7 @@ func (c *SecretClient) GetSecret(ctx context.Context, secretID string) (models.S
 	result.ID = response.Id
 	result.Type = response.Type
 
-	for _, secret := range response.Secret {		
+	for _, secret := range response.Secret {
 		result.Value[secret.Title] = secret.Value
 	}
 
@@ -92,8 +94,8 @@ func (c *SecretClient) GetSecrets(ctx context.Context) ([]models.Secret, error) 
 		return nil, err
 	}
 
-	var result []models.Secret
-	if response.Status == "unauthorized" {
+	result := []models.Secret{}
+	if response.Status == UnauthorizedStatus {
 		err = c.tryToRefreshToken(ctx)
 		if err != nil {
 			return nil, err
@@ -113,7 +115,7 @@ func (c *SecretClient) GetSecrets(ctx context.Context) ([]models.Secret, error) 
 		s.ID = v.Id
 		s.Type = v.Type
 
-		for _, secret := range v.Data {		
+		for _, secret := range v.Data {
 			s.Value[secret.Title] = secret.Value
 		}
 
@@ -131,14 +133,14 @@ func (c *SecretClient) CreateSecret(ctx context.Context, secret models.Secret) e
 	}
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", fmt.Sprintf("Bearer %v", c.accessToken))
 	message := pb.CreateSecretRequest{
-		Type:     secret.Type,
- 		Data:     secret.TransferValueData(),
+		Type: secret.Type,
+		Data: secret.TransferValueData(),
 	}
 	response, err := client.CreateSecret(ctx, &message)
 	if err != nil {
 		return err
 	}
-	if response.Status == "unauthorized" {
+	if response.Status == UnauthorizedStatus {
 		err = c.tryToRefreshToken(ctx)
 		if err != nil {
 			return err

@@ -9,7 +9,7 @@ import (
 
 // UsersService structure for the user service
 type UsersService struct {
-	db UserRepoInterface
+	db                         UserRepoInterface
 	AccessTokenLiveTimeMinutes int
 	RefreshTokenLiveTimeDays   int
 	AccessTokenSecret          string
@@ -19,11 +19,11 @@ type UsersService struct {
 // NewUsersService function of creating a service for working with users
 func NewUsersService(db UserRepoInterface, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int, accessTokenSecret, refreshTokenSecret string) *UsersService {
 	return &UsersService{
-		db: db,
+		db:                         db,
 		AccessTokenLiveTimeMinutes: accessTokenLiveTimeMinutes,
-		RefreshTokenLiveTimeDays: refreshTokenLiveTimeDays,
-		AccessTokenSecret: accessTokenSecret,
-		RefreshTokenSecret: refreshTokenSecret,
+		RefreshTokenLiveTimeDays:   refreshTokenLiveTimeDays,
+		AccessTokenSecret:          accessTokenSecret,
+		RefreshTokenSecret:         refreshTokenSecret,
 	}
 }
 
@@ -33,7 +33,7 @@ func (us *UsersService) CreateUser(ctx context.Context, user models.User) error 
 }
 
 // AuthUser user authorization method
-func (us *UsersService) AuthUser(ctx context.Context, user models.User)(*auth.TokenDetails, error) {
+func (us *UsersService) AuthUser(ctx context.Context, user models.User) (*auth.TokenDetails, error) {
 	userID, err := us.db.CheckUserPassword(ctx, user)
 	if err != nil {
 		return nil, err

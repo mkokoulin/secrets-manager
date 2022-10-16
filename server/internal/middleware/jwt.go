@@ -12,7 +12,7 @@ type JWTMiddleware struct {
 }
 
 func NewJWTMiddleware(accessTokenSecret string) *JWTMiddleware {
-	return &JWTMiddleware {
+	return &JWTMiddleware{
 		AccessTokenSecret: accessTokenSecret,
 	}
 }
@@ -23,6 +23,6 @@ func (jwt *JWTMiddleware) CheckAuth(ctx context.Context) (context.Context, error
 	if err != nil {
 		userID = ""
 	}
-	newCtx := context.WithValue(ctx, "userID", userID)
+	newCtx := context.WithValue(ctx, auth.ContextValue, userID)
 	return newCtx, nil
 }

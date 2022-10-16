@@ -20,8 +20,8 @@ func NewUserLoop(address string, userHandler *handlers.UserHandler) *UserLoop {
 
 // UserLoop structure for loop interaction with user
 type UserLoop struct {
-	address       string
-	userHandler   *handlers.UserHandler
+	address     string
+	userHandler *handlers.UserHandler
 }
 
 func (ul *UserLoop) MainLoop(ctx context.Context) {
@@ -151,7 +151,7 @@ func (ul *UserLoop) loginPasswordLoop(ctx context.Context, secretHandler *handle
 		return
 	}
 	err = secretHandler.CreateSecret(ctx, models.Secret{
-		Type:     "login_password",
+		Type: "login_password",
 		Value: map[string]string{
 			"login":    valuesMap["login"],
 			"password": valuesMap["password"],
@@ -171,7 +171,7 @@ func (ul *UserLoop) stringLoop(ctx context.Context, secretHandler *handlers.Secr
 		return
 	}
 	err = secretHandler.CreateSecret(ctx, models.Secret{
-		Type:     "string",
+		Type: "string",
 		Value: map[string]string{
 			"string": valuesMap["string"],
 		},
@@ -190,7 +190,7 @@ func (ul *UserLoop) binaryLoop(ctx context.Context, secretHandler *handlers.Secr
 		return
 	}
 	err = secretHandler.CreateSecret(ctx, models.Secret{
-		Type:     "binary",
+		Type: "binary",
 		Value: map[string]string{
 			"binary": valuesMap["binary"],
 		},
@@ -209,7 +209,7 @@ func (ul *UserLoop) creditCardLoop(ctx context.Context, secretHandler *handlers.
 		return
 	}
 	err = secretHandler.CreateSecret(ctx, models.Secret{
-		Type:     "credit_card",
+		Type: "credit_card",
 		Value: map[string]string{
 			"card_number":  valuesMap["card_number"],
 			"expired_date": valuesMap["expired_date"],

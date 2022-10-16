@@ -5,9 +5,10 @@ import (
 	"context"
 	"errors"
 
-	pb "github.com/mkokoulin/secrets-manager.git/client/internal/pb/users"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/mkokoulin/secrets-manager.git/client/internal/pb/users"
 )
 
 // UserClient structure for user client

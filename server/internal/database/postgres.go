@@ -36,7 +36,6 @@ func (pd *PostgresDatabase) CreateUser(ctx context.Context, user models.User) er
 			return customerrors.NewCustomError(errors.New(""), "user already exists")
 		}
 
-
 		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return customerrors.NewCustomError(err, "an unknown error occurred during generation password")
@@ -68,14 +67,14 @@ func (pd *PostgresDatabase) CheckUserPassword(ctx context.Context, user models.U
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password)); err != nil {
-        return result.Login, customerrors.NewCustomError(err, "an unknown error occurred during generation password")
-    }
+		return result.Login, customerrors.NewCustomError(err, "an unknown error occurred during generation password")
+	}
 
 	return result.Login, nil
 }
 
 // DeleteUser method for deleting a user
-func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {	
+func (pd *PostgresDatabase) DeleteUser(ctx context.Context, userID string) error {
 	err := pd.conn.WithContext(ctx).Model(&models.User{}).Where("login=?", userID).Update("is_deleted", true).Error
 	if err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during deleting a user")
@@ -89,7 +88,7 @@ func (pd *PostgresDatabase) AddSecret(ctx context.Context, secret models.RawSecr
 	if err := pd.conn.WithContext(ctx).Table("secrets").Create(&secret).Error; err != nil {
 		return customerrors.NewCustomError(err, "an unknown error occurred during secret creation")
 	}
-	
+
 	return nil
 }
 

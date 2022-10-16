@@ -2,28 +2,28 @@
 package models
 
 import (
+	"github.com/google/uuid"
+
 	"encoding/json"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // User storage structure
 type User struct {
-	ID uuid.UUID `json:"id"`
-	Login string `json:"login"`
-	Password string `json:"password"`
+	ID        uuid.UUID `json:"id"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
-	IsDeleted bool `json:"is_deleted"`
+	IsDeleted bool      `json:"is_deleted"`
 }
 
 func (u User) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
-		ID string `json:"id"`
+		ID        string `json:"id"`
 		CreatedAt string `json:"created_at"`
 	}{
-		ID: u.ID.String(),
-		CreatedAt:   u.CreatedAt.Format(time.RFC3339),
+		ID:        u.ID.String(),
+		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 	}
 	return json.Marshal(aliasValue)
 }

@@ -1,15 +1,15 @@
-// Package auth includes everething for working with JWT 
+// Package auth includes everething for working with JWT
 package auth
 
 import (
 	"context"
 	"errors"
 	"fmt"
- 	"strings"
+	"strings"
 	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,6 +20,8 @@ type TokenDetails struct {
 	AtExpires    int64
 	RtExpires    int64
 }
+
+const ContextValue = "userID"
 
 // CreateToken method for createing JWT token
 func CreateToken(userID string, accessTokenSecret, refreshTokenSecret string, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays int) (*TokenDetails, error) {
@@ -113,9 +115,9 @@ func RefreshToken(refreshToken, refreshTokenSecret string, accessTokenLiveTimeMi
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
+	claims := token.Claims.(jwt.MapClaims)
 
-	if ok && token.Valid {
+	if token.Valid {
 		userID := claims["user_id"].(string)
 
 		td, err := CreateToken(userID, refreshToken, refreshTokenSecret, accessTokenLiveTimeMinutes, refreshTokenLiveTimeDays)
@@ -126,7 +128,7 @@ func RefreshToken(refreshToken, refreshTokenSecret string, accessTokenLiveTimeMi
 		log.Log().Msg("token has been refreshed")
 
 		return td, nil
-	} else {
-		return nil, errors.New("refresh token expired")
 	}
+
+	return nil, errors.New("refresh token expired")
 }

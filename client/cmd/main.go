@@ -5,10 +5,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/mkokoulin/secrets-manager.git/client/internal/config"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/handlers"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/loops"
 	"github.com/mkokoulin/secrets-manager.git/client/internal/services"
-	"github.com/mkokoulin/secrets-manager.git/client/internal/config"
 )
 
 var (
